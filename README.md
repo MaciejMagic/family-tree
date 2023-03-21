@@ -1,2 +1,2 @@
 # family-tree
-Generating family trees
+Command-line tool for generating a family tree in svg format
