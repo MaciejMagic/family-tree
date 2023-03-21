@@ -1,19 +1,19 @@
 # @dataclass ?
 
 class Relative():
-    def __init__(self, first_name, last_name, gender):
+    def __init__(self, first_name, last_name, gender, *args, **kwargs):
         self.first_name = first_name
         self.last_name = last_name
         self.gender = gender
-        # self.family_name = family_name
-        # self.date_of_birth = date_of_birth
-        # self.place_of_birth = place_of_birth
-        # self.date_of_death = date_of_death
-        # self.place_of_death = place_of_death
-        # self.phone = phone
-        # self.email = email
-        # self.events = events
-        # self.desc = desc
+        self.family_name = family_name
+        self.date_of_birth = date_of_birth
+        self.place_of_birth = place_of_birth
+        self.date_of_death = date_of_death
+        self.place_of_death = place_of_death
+        self.phone = phone
+        self.email = email
+        self.events = events
+        self.desc = desc
 
     @property
     def first_name(self):

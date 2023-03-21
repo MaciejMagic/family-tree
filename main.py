@@ -37,7 +37,7 @@ def main():
         else:
             sys.exit("Invalid input")
 
-    except ValueError, TypeError:
+    except (ValueError, TypeError):
         sys.exit("Invalid input")
 
 
