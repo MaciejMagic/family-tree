@@ -54,7 +54,7 @@ def new_relative():
     # Add new person to db
     db.execute("""INSERT INTO family
                   (first_name, last_name, gender) VALUES (?, ?, ?)""",
-                  new_relative.first_name, new_relative.last_name, new_relative.gender)
+               new_relative.first_name, new_relative.last_name, new_relative.gender)
 
     return f"{new_relative.first_name} {new_relative.last_name} added"
 
