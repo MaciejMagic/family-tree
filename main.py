@@ -13,7 +13,7 @@ FEATURES = ["first_name", "last_name", "gender", "family_name",
 
 
 def main():
-    """ Execution of main app functions """
+    """ Execution of main app functionality """
     try:
         start = input("""Family tree app v0.1. Choose to:
 1. Add new relative
@@ -24,13 +24,19 @@ Proceed with: """)
 
         # 1. Add new person to the tree
         if start == "1":
-            new_relative(database)
+            add_person = new_relative()
+            answer = input("Is the provided information correct? (Y/N) ")
+            if answer is "Y":
+                save_relative(add_person, db)
+            else:
+                sys.exit("Discarded")
 
         # 2. Modify info
         elif start == "2":
+            # TO DO add new function for inserting partial info
             pass
 
-        # 3. Generate tree using all Relative objects in existing database
+        # 3. Generate tree using all Person objects in existing database
         elif start == "3":
             generate_tree()
 
@@ -45,26 +51,28 @@ Proceed with: """)
         sys.exit("Input error")
 
 
-def new_relative(database):
-    """ Adding new Person object to databse """
+def new_relative() -> Person:
+    """ User data for a new Person object """
     first_name = input("First name: ")
     last_name = input("Last name: ")
     gender = input("Gender (female / male): ")
-    # TODO - adding optional info
+    # TO DO - adding optional info
 
-    # Create a new person object based on the input
+    # Create a new Person object based on the input
     relative = Person(first_name, last_name, gender)
 
+    return relative
 
-def save_relative(person, database):
-    """ Adding new Person object to databse """
+
+def save_relative(person: Person, database) -> None:
+    """ Persisting new Person object to database """
     database.execute(f"""INSERT INTO family (first_name, last_name, gender)
                 VALUES ({person.first_name}, {person.last_name}, {person.gender})""")
 
     print(f"Relative info saved ({person.first_name} {person.last_name})")
 
 
-def load_relative(database, first_name=None, last_name=None):
+def load_relative(database, first_name: str = None, last_name: str = None) -> Person:
     """ Retrieve specified relative from database """
     result = database.execute(
         f"""SELECT * FROM family
