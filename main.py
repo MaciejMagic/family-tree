@@ -1,7 +1,7 @@
 import sys
 import sqlite3
 from relative import Person
-from visualize import generate_tree
+from visualize import generate_tree_csv, generate_tree_db
 
 
 FEATURES = ["first_name", "last_name", "gender", "family_name",
@@ -47,7 +47,7 @@ Proceed with: """)
 
         # 3. Generate tree using all Person objects in existing database
         elif start == "3":
-            generate_tree()
+            generate_tree_db()
 
         # 4. Exit
         elif start == "4":
