@@ -13,13 +13,12 @@ def main():
     """
     Execution of main app functionality:
     - connect to database
-    - ask user for desired action
-    - read, write, update database
-    - generation of svg file
+    - ask for user action
+    - read / write / update database entries
+    - generate svg file
     """
     # Initialize database
     # TO DO - load database from user input - arg vector
-    # Default value - tree.db
     # connect_to_db(sys.argv[1])
     db_connection = connect_to_db("tree.db")
 
@@ -28,7 +27,8 @@ def main():
 1. Add new relative
 2. Modify info about existing relative
 3. Generate tree
-4. Exit
+4. List all relatives
+5. Exit
 Proceed with: """)
 
         # 1. Add new person to the tree
@@ -49,8 +49,15 @@ Proceed with: """)
         elif start == "3":
             generate_tree_db()
 
-        # 4. Exit
+        # 4. Print list of all entries in database
         elif start == "4":
+            # TO DO - retrieve list of all records from db and print all
+            all_family = []
+
+            return all_family
+
+        # 5. Exit
+        elif start == "5":
             sys.exit("Program exited by user")
 
         else:
