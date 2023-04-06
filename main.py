@@ -1,4 +1,5 @@
 import sys
+import csv
 import sqlite3
 from relative import Person
 from visualize import generate_tree_csv, generate_tree_db
@@ -17,11 +18,6 @@ def main():
     - read / write / update database entries
     - generate svg file
     """
-    # Initialize database
-    # TO DO - load database from user input - arg vector
-    # connect_to_db(sys.argv[1])
-    db_connection = connect_to_db("tree.db")
-
     try:
         start = input("""Family tree app v0.1. Choose to:
 1. Add new relative
@@ -33,10 +29,30 @@ Proceed with: """)
 
         # 1. Add new person to the tree
         if start == "1":
-            add_person = new_relative()
+            add_new_relative = new_relative()
             answer = input("Is the provided information correct? (Y/N) ")
             if answer == "Y":
-                save_relative(add_person, db_connection)
+                if len(sys.argv) == 1:
+                    # If no arguments provided save to default database
+                    db_connection = connect_to_db("tree.db")
+                    save_relative(add_new_relative, db_connection)
+                    print("New relative saved in tree.db")
+
+                elif (len(sys.argv) == 2) and (sys.argv[1].endswith(".db")):
+                    # If custom .db file provided, save there
+                    db_connection = connect_to_db(sys.argv[1])
+                    save_relative(add_new_relative, db_connection)
+                    print(f"New relative saved in {sys.argv[1]}")
+
+                elif (len(sys.argv) == 2) and (sys.argv[1].endswith(".csv")):
+                    with open(sys.argv[1], "a", encoding="UTF-8") as file:
+                        writer = csv.DictWriter(file, fieldnames=FEATURES)
+                        # TO DO - need to unpack Person object to dict
+                        writer.writerow(add_new_relative)
+
+                else:
+                    sys.exit()
+
             else:
                 sys.exit("Discarded")
 
@@ -45,9 +61,22 @@ Proceed with: """)
             # TO DO add new function for inserting partial info
             pass
 
-        # 3. Generate tree using all Person objects in existing database
+        # 3. Generate family tree
         elif start == "3":
-            generate_tree_db()
+            # If no arguments provided, generate from default database
+            if len(sys.argv) == 1:
+                generate_tree_db()
+            elif len(sys.argv) == 2:
+                # Load the provided .csv file
+                if sys.argv[1].endswith(".csv"):
+                    generate_tree_csv(sys.argv[1])
+                # Load the provided .db file
+                elif sys.argv[1].endswith(".db"):
+                    generate_tree_db(sys.argv[1])
+            elif len(sys.argv) > 2:
+                sys.exit("Too many arguments")
+            else:
+                sys.exit("Usage: python main.py ['file']")
 
         # 4. Print list of all entries in database
         elif start == "4":
