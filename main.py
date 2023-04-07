@@ -42,24 +42,46 @@ Proceed with: """)
                     # If custom .db file provided, save there
                     db_connection = connect_to_db(sys.argv[1])
                     save_relative(add_new_relative, db_connection)
-                    print(f"New relative saved in {sys.argv[1]}")
+                    print(
+                        f"New relative ({add_new_relative.first_name} {add_new_relative.last_name}) saved in {sys.argv[1]}")
 
                 elif (len(sys.argv) == 2) and (sys.argv[1].endswith(".csv")):
-                    with open(sys.argv[1], "a", encoding="UTF-8") as file:
-                        writer = csv.DictWriter(file, fieldnames=FEATURES)
-                        # TO DO - need to unpack Person object to dict
-                        writer.writerow(add_new_relative)
-
+                    try:
+                        with open(sys.argv[1], "a", encoding="UTF-8") as file:
+                            writer = csv.DictWriter(file, fieldnames=FEATURES)
+                            #
+                            # TO DO - need to unpack Person object to dict
+                            writer.writerow(add_new_relative)
+                    except FileNotFoundError:
+                        sys.exit("File not found")
                 else:
                     sys.exit()
-
             else:
                 sys.exit("Discarded")
 
         # 2. Modify info
         elif start == "2":
             # TO DO add new function for inserting partial info
-            pass
+            if len(sys.argv) == 1:
+                db_connection = connect_to_db("tree.db")
+                # TO DO - edit info
+                print(f"Modified info ({} {}) saved at tree.db")
+
+            elif (len(sys.argv) == 2) and (sys.argv[1].endswith(".db")):
+                db_connection = connect_to_db(sys.argv[1])
+                # TO DO - edit info
+                print(f"Modified info ({} {}) saved at {sys.argv[1]}")
+
+            elif (len(sys.argv) == 2) and (sys.argv[1].endswith(".csv")):
+                try:
+                    with open(sys.argv[1], "a") as file:
+                        writer = csv.DictWriter(file, fieldnames=FEATURES)
+                        # TO DO
+                        writer.writerow()
+                        print(f"Modified info ({} {}) saved at {sys.argv[1]}")
+
+                except FileNotFoundError:
+                    sys.exit("File not found")
 
         # 3. Generate family tree
         elif start == "3":
