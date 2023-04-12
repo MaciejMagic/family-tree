@@ -49,9 +49,7 @@ Proceed with: """)
                     try:
                         with open(sys.argv[1], "a", encoding="UTF-8") as file:
                             writer = csv.DictWriter(file, fieldnames=FEATURES)
-                            #
-                            # TO DO - need to unpack Person object to dict
-                            writer.writerow(add_new_relative)
+                            writer.writerow(add_new_relative.__dict__)
                     except FileNotFoundError:
                         sys.exit("File not found")
                 else:
@@ -61,16 +59,33 @@ Proceed with: """)
 
         # 2. Modify info
         elif start == "2":
-            # TO DO add new function for inserting partial info
             if len(sys.argv) == 1:
                 db_connection = connect_to_db("tree.db")
-                # TO DO - edit info
+                # Ask for search input
+                first_name = input("Search for first name: ")
+                last_name = input("Search for last name: ")
+                # load_relative returns a list of Person objects
+                results = load_relative(db_connection, first_name=first_name, last_name=last_name)
+
+                found = len(results)
+                if found > 0:
+                    for person in results:
+                        print(f"{found}. {person}")
+                        # Append to list ? Fix iteration
+                        found -= 1
+                else:
+                    print("None found")
+
+                # TO DO - Ask which entry to edit
+
+                # TO DO - save back to db with modified info
+
                 print(f"Modified info ({} {}) saved at tree.db")
 
             elif (len(sys.argv) == 2) and (sys.argv[1].endswith(".db")):
                 db_connection = connect_to_db(sys.argv[1])
                 # TO DO - edit info
-                print(f"Modified info ({} {}) saved at {sys.argv[1]}")
+                # print(f"Modified info ({} {}) saved at {sys.argv[1]}")
 
             elif (len(sys.argv) == 2) and (sys.argv[1].endswith(".csv")):
                 try:
@@ -78,8 +93,7 @@ Proceed with: """)
                         writer = csv.DictWriter(file, fieldnames=FEATURES)
                         # TO DO
                         writer.writerow()
-                        print(f"Modified info ({} {}) saved at {sys.argv[1]}")
-
+                        # print(f"Modified info ({} {}) saved at {sys.argv[1]}")
                 except FileNotFoundError:
                     sys.exit("File not found")
 
@@ -138,12 +152,8 @@ def new_relative() -> Person:
     first_name = input("First name: ")
     last_name = input("Last name: ")
     gender = input("Gender (female / male): ")
-    # TO DO - adding optional info
-
     # Create and return a new Person object based on the input
-    relative = Person(first_name, last_name, gender)
-
-    return relative
+    return Person(first_name, last_name, gender)
 
 
 def save_relative(person: Person, database: sqlite3.Connection) -> None:
@@ -151,26 +161,35 @@ def save_relative(person: Person, database: sqlite3.Connection) -> None:
     Persists a Person object as a row in database
     """
     # TO DO - need to check if specified person already exists in db
+    try:
+        result = database.execute(f"""INSERT INTO family (first_name, last_name, gender)
+                    VALUES ({person.first_name}, {person.last_name}, {person.gender})""")
+    except FileNotFoundError:
+        raise FileNotFoundError
 
-    database.execute(f"""INSERT INTO family (first_name, last_name, gender)
-                VALUES ({person.first_name}, {person.last_name}, {person.gender})""")
-
-    print(f"Relative info saved ({person.first_name} {person.last_name})")
+    if result:
+        print(f"Relative info saved ({person.first_name} {person.last_name})")
 
 
 def load_relative(database: sqlite3.Connection, **kwargs) -> list[Person]:
     """
-    Retrieves relative/s specified by name from database as a list of Person objects
+    Returns relative/s specified by name from database as a list of Person objects
     """
-    results = database.execute(
-        f"""SELECT * FROM family
-        WHERE first_name={kwargs["first_name"]} AND last_name={kwargs["last_name"]}""")
+    try:
+        results = database.execute(
+            f"""SELECT * FROM family
+            WHERE first_name={kwargs["first_name"]} AND last_name={kwargs["last_name"]}""")
+    except FileNotFoundError:
+        raise FileNotFoundError
 
     found_relatives = []
-    for row in results:
-        found_relatives.append(Person(**row))
-
-    return found_relatives
+    if results:
+        for row in results:
+            found_relatives.append(Person(**row))
+        return found_relatives
+    else:
+        print("None found")
+        return None
 
 
 if __name__ == "__main__":

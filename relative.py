@@ -75,6 +75,10 @@ class Person():
 
     @date_of_birth.setter
     def date_of_birth(self, date_of_birth):
+        # if validators.date(date_of_birth):
+        #     self._date_of_birth = date_of_birth
+        # else:
+        #     print("Invalid date format")
         # Date input format must be in YYYY-MM-DD
         year, month, day = str(date_of_birth).split("-")
         self._date_of_birth = date(int(year), int(month), int(day))
@@ -86,6 +90,10 @@ class Person():
 
     @date_of_death.setter
     def date_of_death(self, date_of_death):
+        # if validators.date(date_of_death):
+        #     self._date_of_death = date_of_death
+        # else:
+        #     print("Invalid date format")
         # Date input format must be in YYYY-MM-DD
         year, month, day = str(date_of_death).split("-")
         self._date_of_death = date(int(year), int(month), int(day))
