@@ -98,12 +98,10 @@ class Person():
     def date_of_death(self, date_of_death):
         # Date input must be in ISO 8601 format 'YYYY-MM-DD'
         if validators.date(date_of_death):
-            self._date_of_death = date_of_death
+            year, month, day = str(date_of_death).split("-")
+            self._date_of_death = date(int(year), int(month), int(day))
         else:
             raise ValueError("Invalid date format")
-
-        year, month, day = str(date_of_death).split("-")
-        self._date_of_death = date(int(year), int(month), int(day))
 
     @property
     def phone(self):
@@ -112,7 +110,12 @@ class Person():
 
     @phone.setter
     def phone(self, phone):
-        self._phone = phone
+        # Check if inputed phone number string has at least 7 digits
+        if len(filter(str.isdigit, phone)) > 6:
+            self._phone = phone
+        else:
+            raise ValueError(
+                "Phone value must be numerical and at least 7 digits long")
 
     @property
     def email(self):
@@ -125,11 +128,11 @@ class Person():
             if validators.email(email_address):
                 self._email = email_address
             else:
-                print("Invalid")
+                print("Invalid value")
         except errors.EmptyValueError:
-            print("Invalid")
+            print("Empty value")
         except errors.InvalidEmailError:
-            print("Invalid")
+            print("Invalid email address")
 
     @property
     def events(self):
@@ -138,7 +141,8 @@ class Person():
 
     @events.setter
     def events(self, events):
-        self._events = events
+        self._events = []
+        self._events.append(events)
 
     @property
     def desc(self):
@@ -147,7 +151,8 @@ class Person():
 
     @desc.setter
     def desc(self, desc):
-        self._desc = desc
+        self._desc = []
+        self._desc.append(desc)
 
     # Methods
 
@@ -164,3 +169,11 @@ class Person():
             age_delta = self._date_of_death - self._date_of_birth
 
         return int(age_delta["years"])
+
+    def add_event(self, event: str) -> None:
+        """ Add new event to persons bio """
+        self._events.append(event)
+
+    def add_desc(self, desc: str) -> None:
+        """ Add new description to persons bio """
+        self._desc.append(desc)

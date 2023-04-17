@@ -12,7 +12,6 @@ def generate_tree_csv(input_file: str) -> None:
     with open(input_file, "r", encoding="UTF-8") as file:
         try:
             tree = graphviz.Digraph(comment="Family Tree")
-            people = []
             reader = csv.DictReader(file)
 
             for person in reader:

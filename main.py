@@ -160,25 +160,37 @@ def save_relative(person: Person, database: sqlite3.Connection) -> None:
     """
     Persists a Person object as a row in database
     """
-    # TO DO - need to check if specified person already exists in db
-    try:
-        result = database.execute(f"""INSERT INTO family (first_name, last_name, gender)
-                    VALUES ({person.first_name}, {person.last_name}, {person.gender})""")
-    except FileNotFoundError:
-        raise FileNotFoundError
+    exists = database.execute("""SELECT * FROM family
+                                  WHERE first_name = ?
+                                  AND last_name = ?""",
+                                  person.first_name, person.last_name)
+    if exists:
+        print("Following people already exist with provided name:")
+        for match in exists:
+            print(f"- {match['first_name']} {match['last_name']} {match['date_of_birth']}")
 
-    if result:
-        print(f"Relative info saved ({person.first_name} {person.last_name})")
-
+    answer = input("Are you sure? [Y/N] ")
+    if answer == "Y":
+        try:
+            result = database.execute("""INSERT INTO family (first_name, last_name, gender)
+                                        VALUES (?, ?, ?)""",
+                                        person.first_name, person.last_name, person.gender)
+        except FileNotFoundError:
+            raise FileNotFoundError
+        if result:
+            print(f"Relative info saved ({person.first_name} {person.last_name})")
+    else:
+        pass
+  
 
 def load_relative(database: sqlite3.Connection, **kwargs) -> list[Person]:
     """
     Returns relative/s specified by name from database as a list of Person objects
     """
     try:
-        results = database.execute(
-            f"""SELECT * FROM family
-            WHERE first_name={kwargs["first_name"]} AND last_name={kwargs["last_name"]}""")
+        results = database.execute("""SELECT * FROM family
+                                      WHERE first_name = ? AND last_name = ?""",
+                                      kwargs["first_name"], kwargs["last_name"])
     except FileNotFoundError:
         raise FileNotFoundError
 
