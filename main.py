@@ -16,7 +16,7 @@ def main():
     - connect to database
     - ask for user action
     - read / write / update database entries
-    - generate svg file
+    - generate SVG/PDF file
     """
     try:
         start = input("""Family tree app v0.1. Choose to:
@@ -152,7 +152,7 @@ def new_relative() -> Person:
     first_name = input("First name: ")
     last_name = input("Last name: ")
     gender = input("Gender (female / male): ")
-    # Create and return a new Person object based on the input
+    # Create and return a new Person object based on user input
     return Person(first_name, last_name, gender)
 
 

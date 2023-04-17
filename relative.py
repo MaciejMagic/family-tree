@@ -1,5 +1,5 @@
 from datetime import date
-from validator_collection import validators, errors
+from validator_collection import validators, checkers, errors
 
 # Note: make a @dataclass ?
 
@@ -33,7 +33,9 @@ class Person():
 
     @first_name.setter
     def first_name(self, first_name):
-        if (first_name is None) or (14 < len(first_name) < 2):
+        if first_name.isalpha() is False:
+            raise ValueError
+        elif (first_name is None) or (14 < len(first_name) < 2):
             raise ValueError
         self._first_name = first_name
 
@@ -44,7 +46,9 @@ class Person():
 
     @last_name.setter
     def last_name(self, last_name):
-        if (last_name is None) or (35 < len(last_name) < 2):
+        if last_name.isalpha() is False:
+            raise ValueError
+        elif (last_name is None) or (35 < len(last_name) < 2):
             raise ValueError
         self._last_name = last_name
 
@@ -55,6 +59,8 @@ class Person():
 
     @gender.setter
     def gender(self, gender):
+        if gender.lower() not in ['female', 'male']:
+            raise ValueError
         self._gender = gender
 
     @property
@@ -64,6 +70,7 @@ class Person():
 
     @family_name.setter
     def family_name(self, family_name):
+        # No alphabetic validation to allow regnal / family numbers
         if (family_name is None) or (35 < len(family_name) < 2):
             raise ValueError
         self._family_name = family_name
@@ -75,13 +82,12 @@ class Person():
 
     @date_of_birth.setter
     def date_of_birth(self, date_of_birth):
-        # if validators.date(date_of_birth):
-        #     self._date_of_birth = date_of_birth
-        # else:
-        #     print("Invalid date format")
-        # Date input format must be in YYYY-MM-DD
-        year, month, day = str(date_of_birth).split("-")
-        self._date_of_birth = date(int(year), int(month), int(day))
+        # Date input must be in ISO 8601 format 'YYYY-MM-DD'
+        if validators.date(date_of_birth):
+            year, month, day = str(date_of_birth).split("-")
+            self._date_of_birth = date(int(year), int(month), int(day))
+        else:
+            raise ValueError("Invalid date format")
 
     @property
     def date_of_death(self):
@@ -90,11 +96,12 @@ class Person():
 
     @date_of_death.setter
     def date_of_death(self, date_of_death):
-        # if validators.date(date_of_death):
-        #     self._date_of_death = date_of_death
-        # else:
-        #     print("Invalid date format")
-        # Date input format must be in YYYY-MM-DD
+        # Date input must be in ISO 8601 format 'YYYY-MM-DD'
+        if validators.date(date_of_death):
+            self._date_of_death = date_of_death
+        else:
+            raise ValueError("Invalid date format")
+
         year, month, day = str(date_of_death).split("-")
         self._date_of_death = date(int(year), int(month), int(day))
 
