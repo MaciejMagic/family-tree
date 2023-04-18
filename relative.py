@@ -27,7 +27,7 @@ class Person():
     # Properties
 
     @property
-    def first_name(self):
+    def first_name(self) -> str:
         """ Returns objects first name """
         return self._first_name
 
@@ -40,7 +40,7 @@ class Person():
         self._first_name = first_name
 
     @property
-    def last_name(self):
+    def last_name(self) -> str:
         """ Returns objects last name """
         return self._last_name
 
@@ -53,7 +53,7 @@ class Person():
         self._last_name = last_name
 
     @property
-    def gender(self):
+    def gender(self) -> str:
         """ Returns person gender """
         return self._gender
 
@@ -64,7 +64,7 @@ class Person():
         self._gender = gender
 
     @property
-    def family_name(self):
+    def family_name(self) -> str:
         """ Returns objects family last name """
         return self._family_name
 
@@ -76,7 +76,7 @@ class Person():
         self._family_name = family_name
 
     @property
-    def date_of_birth(self):
+    def date_of_birth(self) -> str:
         """ Returns persons birthday """
         return repr(self._date_of_birth)
 
@@ -90,7 +90,7 @@ class Person():
             raise ValueError("Invalid date format")
 
     @property
-    def date_of_death(self):
+    def date_of_death(self) -> str:
         """ Returns persons date of death """
         return repr(self._date_of_death)
 
@@ -104,7 +104,7 @@ class Person():
             raise ValueError("Invalid date format")
 
     @property
-    def phone(self):
+    def phone(self) -> str:
         """ Returns persons phone number """
         return self._phone
 
@@ -118,7 +118,7 @@ class Person():
                 "Phone value must be numerical and at least 7 digits long")
 
     @property
-    def email(self):
+    def email(self) -> str:
         """ Returns persons email address """
         return self._email
 
@@ -135,7 +135,7 @@ class Person():
             print("Invalid email address")
 
     @property
-    def events(self):
+    def events(self) -> list[str]:
         """ Returns persons saved events as a long string """
         return self._events
 
@@ -145,7 +145,7 @@ class Person():
         self._events.append(events)
 
     @property
-    def desc(self):
+    def desc(self) -> list[str]:
         """ Returns a persons description as a long string """
         return self._desc
 

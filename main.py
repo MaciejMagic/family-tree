@@ -1,7 +1,7 @@
 import sys
 import csv
 import sqlite3
-from relative import Person
+from helpers import connect_to_db, new_relative, save_relative, load_relative, modify_relative
 from visualize import generate_tree_csv, generate_tree_db
 
 
@@ -19,7 +19,7 @@ def main():
     - generate SVG/PDF file
     """
     try:
-        start = input("""Family tree app v0.1. Choose to:
+        start = input("""Welcome to Family Tree.
 1. Add new relative
 2. Modify info about existing relative
 3. Generate tree
@@ -27,7 +27,7 @@ def main():
 5. Exit
 Proceed with: """)
 
-        # 1. Add new person to the tree
+        # 1. Add new person to database
         if start == "1":
             add_new_relative = new_relative()
             answer = input("Is the provided information correct? (Y/N) ")
@@ -57,30 +57,73 @@ Proceed with: """)
             else:
                 sys.exit("Discarded")
 
-        # 2. Modify info
+        # 2. Modify existing person in database
         elif start == "2":
+            # Ask for search input
+            first_name = input("Search for first name: ")
+            last_name = input("Search for last name: ")
+
+            # Ask which info to edit
+            info_to_edit = int(input("""Which info to add / edit:
+1. Family name
+2. Date of birth
+3. Place of birth
+4. Date of death
+5. Place of death
+6. Phone number
+7. Email address
+8. Events
+9. Description
+Proceed with: """))
+
+            # Ask with what content to edit
+            new_content = input("Enter new info: ")
+
             if len(sys.argv) == 1:
                 db_connection = connect_to_db("tree.db")
-                # Ask for search input
-                first_name = input("Search for first name: ")
-                last_name = input("Search for last name: ")
-                # load_relative returns a list of Person objects
-                results = load_relative(db_connection, first_name=first_name, last_name=last_name)
 
+                # 'load_relative' function returns a list of Person objects
+                results = load_relative(
+                    db_connection, first_name=first_name, last_name=last_name)
+
+                # If there are multiple people with the given name - list them
                 found = len(results)
-                if found > 0:
+                if len(results) > 1:
                     for person in results:
-                        print(f"{found}. {person}")
-                        # Append to list ? Fix iteration
+                        print(
+                            f"{(len(results) + 1) - found}. {person.first_name} {person.last_name}, {person.date_of_birth}")
                         found -= 1
+                    # Ask which entry to edit
+                    person_choice = input("Which person to edit? ")
+                    # Person object to edit is:
+                    person_to_edit = results[int(person_choice) - 1]
+
+                # If there are none - exit
+                elif results is None:
+                    sys.exit("No such person in database")
+
                 else:
-                    print("None found")
+                    person_to_edit = results[0]
 
-                # TO DO - Ask which entry to edit
+                edited_person = modify_relative(
+                    person_to_edit, info_to_edit, new_content)
 
-                # TO DO - save back to db with modified info
+                # TO DO - offload sql to a function ?
 
-                print(f"Modified info ({} {}) saved at tree.db")
+                # Save to database with modified info
+                try:
+                    db_connection.execute("""INSERT INTO family (?)
+                                             VALUES(?) WHERE first_name = ? AND last_name = ?""",
+                                          info_to_edit,
+                                          new_content,
+                                          edited_person.first_name,
+                                          edited_person.last_name)
+
+                    print("Modified info (" + person_to_edit.first_name +
+                          " " + person_to_edit.last_name + ") saved")
+
+                except sqlite3.Error:
+                    sys.exit("Error saving to database")
 
             elif (len(sys.argv) == 2) and (sys.argv[1].endswith(".db")):
                 db_connection = connect_to_db(sys.argv[1])
@@ -89,11 +132,16 @@ Proceed with: """)
 
             elif (len(sys.argv) == 2) and (sys.argv[1].endswith(".csv")):
                 try:
-                    with open(sys.argv[1], "a") as file:
+                    # Append info to csv file
+                    with open(sys.argv[1], "a", encoding="UTF-8") as file:
                         writer = csv.DictWriter(file, fieldnames=FEATURES)
+
                         # TO DO
+
                         writer.writerow()
+
                         # print(f"Modified info ({} {}) saved at {sys.argv[1]}")
+
                 except FileNotFoundError:
                     sys.exit("File not found")
 
@@ -130,78 +178,6 @@ Proceed with: """)
 
     except (ValueError, TypeError):
         sys.exit("Input error")
-
-
-def connect_to_db(dbfile: str = "tree.db") -> sqlite3.Connection:
-    """
-    Establishes a connection to specified SQLite 3 database
-    """
-    connection = None
-    try:
-        connection = sqlite3.connect(dbfile)
-    except FileNotFoundError as error:
-        sys.exit(error)
-
-    return connection
-
-
-def new_relative() -> Person:
-    """
-    Collects user input for a new Person object
-    """
-    first_name = input("First name: ")
-    last_name = input("Last name: ")
-    gender = input("Gender (female / male): ")
-    # Create and return a new Person object based on user input
-    return Person(first_name, last_name, gender)
-
-
-def save_relative(person: Person, database: sqlite3.Connection) -> None:
-    """
-    Persists a Person object as a row in database
-    """
-    exists = database.execute("""SELECT * FROM family
-                                  WHERE first_name = ?
-                                  AND last_name = ?""",
-                                  person.first_name, person.last_name)
-    if exists:
-        print("Following people already exist with provided name:")
-        for match in exists:
-            print(f"- {match['first_name']} {match['last_name']} {match['date_of_birth']}")
-
-    answer = input("Are you sure? [Y/N] ")
-    if answer == "Y":
-        try:
-            result = database.execute("""INSERT INTO family (first_name, last_name, gender)
-                                        VALUES (?, ?, ?)""",
-                                        person.first_name, person.last_name, person.gender)
-        except FileNotFoundError:
-            raise FileNotFoundError
-        if result:
-            print(f"Relative info saved ({person.first_name} {person.last_name})")
-    else:
-        pass
-  
-
-def load_relative(database: sqlite3.Connection, **kwargs) -> list[Person]:
-    """
-    Returns relative/s specified by name from database as a list of Person objects
-    """
-    try:
-        results = database.execute("""SELECT * FROM family
-                                      WHERE first_name = ? AND last_name = ?""",
-                                      kwargs["first_name"], kwargs["last_name"])
-    except FileNotFoundError:
-        raise FileNotFoundError
-
-    found_relatives = []
-    if results:
-        for row in results:
-            found_relatives.append(Person(**row))
-        return found_relatives
-    else:
-        print("None found")
-        return None
 
 
 if __name__ == "__main__":
