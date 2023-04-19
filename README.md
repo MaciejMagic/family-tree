@@ -1,17 +1,25 @@
 # Family tree app
-<i>Command-line tool for generating a family tree
-as a svg format graphic</i>
 
-Tools in use: Python 3, SQLite 3
+Command-line tool for generating a family tree as a svg/pdf format graphic
 
 ---
 
-Work in progress on:
-- app reading from an sqlite3 database file specified by user in argument vector,
-- info-updating function for existing relatives
+Tools in use: Python, SQLite 3
 
-TODO:
-- input error checking
+Requirements: Python 3.10+, [Graphviz](https://www.graphviz.org/) for diagram rendering
+
+## Usage
+
+```
+$ python main.py [optional file]
+```
+
+## To do's
+
+Work in progress on:
 - tests for main
-- improve graph module
-- additional methods for Person class
+- improving graph module
+
+## License
+
+[MIT](LICENSE)
