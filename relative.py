@@ -1,7 +1,6 @@
 from datetime import date
-from validator_collection import validators, checkers, errors
 
-# Note: make a @dataclass ?
+from validator_collection import checkers, errors, validators
 
 
 class Person():
@@ -14,15 +13,17 @@ class Person():
         self.first_name = first_name
         self.last_name = last_name
         self.gender = gender
-        self.family_name = kwargs["family_name"]
-        self.date_of_birth = kwargs["date_of_birth"]
-        self.place_of_birth = kwargs["place_of_birth"]
-        self.date_of_death = kwargs["date_of_death"]
-        self.place_of_death = kwargs["place_of_death"]
-        self.phone = kwargs["phone"]
-        self.email = kwargs["email"]
-        self.events = kwargs["events"]
-        self.desc = kwargs["desc"]
+        self.family_name = kwargs.get("family_name")
+        self.date_of_birth = kwargs.get("date_of_birth")
+        self.place_of_birth = kwargs.get("place_of_birth")
+        self.date_of_death = kwargs.get("date_of_death")
+        self.place_of_death = kwargs.get("place_of_death")
+        self.phone = kwargs.get("phone")
+        self.email = kwargs.get("email")
+        self._events = []
+        self.events = kwargs.get("events")
+        self._desc = []
+        self.desc = kwargs.get("desc")
 
     # Properties
 
@@ -32,7 +33,7 @@ class Person():
         return self._first_name
 
     @first_name.setter
-    def first_name(self, first_name):
+    def first_name(self, first_name: str):
         if first_name.isalpha() is False:
             raise ValueError
         elif (first_name is None) or (14 < len(first_name) < 2):
@@ -45,7 +46,7 @@ class Person():
         return self._last_name
 
     @last_name.setter
-    def last_name(self, last_name):
+    def last_name(self, last_name: str):
         if last_name.isalpha() is False:
             raise ValueError
         elif (last_name is None) or (35 < len(last_name) < 2):
@@ -58,7 +59,7 @@ class Person():
         return self._gender
 
     @gender.setter
-    def gender(self, gender):
+    def gender(self, gender: str):
         if gender.lower() not in ['female', 'male']:
             raise ValueError
         self._gender = gender
@@ -69,21 +70,24 @@ class Person():
         return self._family_name
 
     @family_name.setter
-    def family_name(self, family_name):
+    def family_name(self, family_name: str):
         # No alphabetic validation to allow regnal / family numbers
-        if (family_name is None) or (35 < len(family_name) < 2):
-            raise ValueError
-        self._family_name = family_name
+        if family_name:
+            if (35 < len(family_name) < 2):
+                raise ValueError
+            self._family_name = family_name
+        else:
+            self._family_name = None
 
     @property
     def date_of_birth(self) -> str:
-        """ Returns persons birthday """
+        """ Returns this persons birthday """
         return repr(self._date_of_birth)
 
     @date_of_birth.setter
-    def date_of_birth(self, date_of_birth):
+    def date_of_birth(self, date_of_birth: str):
         # Date input must be in ISO 8601 format 'YYYY-MM-DD'
-        if validators.date(date_of_birth):
+        if checkers.is_date(date_of_birth):
             year, month, day = str(date_of_birth).split("-")
             self._date_of_birth = date(int(year), int(month), int(day))
         else:
@@ -91,13 +95,13 @@ class Person():
 
     @property
     def date_of_death(self) -> str:
-        """ Returns persons date of death """
+        """ Returns this persons date of death """
         return repr(self._date_of_death)
 
     @date_of_death.setter
-    def date_of_death(self, date_of_death):
+    def date_of_death(self, date_of_death: str):
         # Date input must be in ISO 8601 format 'YYYY-MM-DD'
-        if validators.date(date_of_death):
+        if checkers.is_date(date_of_death):
             year, month, day = str(date_of_death).split("-")
             self._date_of_death = date(int(year), int(month), int(day))
         else:
@@ -105,13 +109,13 @@ class Person():
 
     @property
     def phone(self) -> str:
-        """ Returns persons phone number """
+        """ Returns this persons phone number """
         return self._phone
 
     @phone.setter
-    def phone(self, phone):
+    def phone(self, phone: str):
         # Check if inputed phone number string has at least 7 digits
-        if len(filter(str.isdigit, phone)) > 6:
+        if (16 > len(filter(str.isdigit, phone)) > 6):
             self._phone = phone
         else:
             raise ValueError(
@@ -119,45 +123,44 @@ class Person():
 
     @property
     def email(self) -> str:
-        """ Returns persons email address """
+        """ Returns this persons email address """
         return self._email
 
     @email.setter
-    def email(self, email_address):
+    def email(self, email_address: str):
         try:
-            if validators.email(email_address):
-                self._email = email_address
+            if checkers.is_email(email_address):
+                self._email = validators.email(email_address, allow_empty=True)
             else:
-                print("Invalid value")
-        except errors.EmptyValueError:
-            print("Empty value")
-        except errors.InvalidEmailError:
-            print("Invalid email address")
+                raise ValueError("Invalid email value")
+        except errors.InvalidEmailError as exc:
+            raise errors.InvalidEmailError("Invalid email address") from exc
 
     @property
     def events(self) -> list[str]:
-        """ Returns persons saved events as a long string """
+        """ Returns this persons saved events """
         return self._events
 
     @events.setter
-    def events(self, events):
-        self._events = []
-        self._events.append(events)
+    def events(self, event):
+        self._events.append(event)
 
     @property
     def desc(self) -> list[str]:
-        """ Returns a persons description as a long string """
+        """ Returns this persons description """
         return self._desc
 
     @desc.setter
     def desc(self, desc):
-        self._desc = []
         self._desc.append(desc)
 
     # Methods
 
     def __str__(self):
-        return f"{self._first_name} {self._last_name}"
+        if self._date_of_death is None:
+            return f"{self._first_name} {self._last_name} ({self._date_of_birth} - )"
+        else:
+            return f"{self._first_name} {self._last_name} ({self._date_of_birth} - {self._date_of_death})"
 
     def age(self) -> int:
         """
@@ -167,7 +170,6 @@ class Person():
             age_delta = date.today() - self._date_of_birth
         else:
             age_delta = self._date_of_death - self._date_of_birth
-
         return int(age_delta["years"])
 
     def add_event(self, event: str) -> None:

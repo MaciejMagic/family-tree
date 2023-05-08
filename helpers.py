@@ -1,5 +1,6 @@
-import sys
 import sqlite3
+import sys
+
 from relative import Person
 
 

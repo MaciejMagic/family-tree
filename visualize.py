@@ -1,8 +1,8 @@
-import sys
 import csv
-import sqlite3
+import sys
+
 import graphviz
-from main import connect_to_db
+from helpers import connect_to_db
 
 
 def generate_tree_csv(input_file: str) -> None:

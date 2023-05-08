@@ -1,23 +1,17 @@
-import sys
 import csv
 import sqlite3
-from helpers import connect_to_db, new_relative, save_relative, load_relative, modify_relative
-from visualize import generate_tree_csv, generate_tree_db
+import sys
 
+from helpers import (connect_to_db, load_relative, modify_relative,
+                     new_relative, save_relative)
+from visualize import generate_tree_csv, generate_tree_db
 
 FEATURES = ["first_name", "last_name", "gender", "family_name",
             "date_of_birth", "place_of_birth", "date_of_death",
             "place_of_death", "phone", "email", "events", "desc"]
 
 
-def main():
-    """
-    Execution of main app functionality:
-    - connect to database
-    - ask for user action
-    - read / write / update database entries
-    - generate SVG/PDF file
-    """
+if __name__ == "__main__":
     try:
         start = input("""Welcome to Family Tree.
 1. Add new relative
@@ -55,7 +49,7 @@ Proceed with: """)
                 else:
                     sys.exit()
             else:
-                sys.exit("Discarded")
+                sys.exit("Person info not correct. Discarded. Exited")
 
         # 2. Modify existing person in database
         elif start == "2":
@@ -91,7 +85,7 @@ Proceed with: """))
                 if len(results) > 1:
                     for person in results:
                         print(
-                            f"{(len(results) + 1) - found}. {person.first_name} {person.last_name}, {person.date_of_birth}")
+                            f"""{(len(results) + 1) - found}. {person.first_name} {person.last_name}, {person.date_of_birth}""")
                         found -= 1
                     # Ask which entry to edit
                     person_choice = input("Which person to edit? ")
@@ -167,7 +161,7 @@ Proceed with: """))
             # TO DO - retrieve list of all records from db and print all
             all_family = []
 
-            return all_family
+            # return all_family
 
         # 5. Exit
         elif start == "5":
@@ -178,7 +172,3 @@ Proceed with: """))
 
     except (ValueError, TypeError):
         sys.exit("Input error")
-
-
-if __name__ == "__main__":
-    main()
