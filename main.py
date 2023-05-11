@@ -3,53 +3,83 @@ import sqlite3
 import sys
 
 from helpers import (connect_to_db, load_relative, modify_relative,
-                     new_relative, save_relative)
+                     new_relative, save_relative, show_help)
 from visualize import generate_tree_csv, generate_tree_db
 
 FEATURES = ["first_name", "last_name", "gender", "family_name",
             "date_of_birth", "place_of_birth", "date_of_death",
             "place_of_death", "phone", "email", "events", "desc"]
 
+ARGUMENTS = ["-h", "--help"]
 
 if __name__ == "__main__":
+    for argument in sys.argv:
+        if argument in ARGUMENTS:
+            show_help()
+            break
+
     try:
-        start = input("""Welcome to Family Tree.
-1. Add new relative
-2. Modify info about existing relative
-3. Generate tree
-4. List all relatives
-5. Exit
+        start = input("""Welcome to Family Tree
+
+Available options:
+    1. Add new relative
+    2. Modify info about existing relative
+    3. Generate tree
+    4. List all relatives
+    5. Exit
 Proceed with: """)
 
         # 1. Add new person to database
         if start == "1":
-            add_new_relative = new_relative()
-            answer = input("Is the provided information correct? (Y/N) ")
-            if answer == "Y":
-                if len(sys.argv) == 1:
-                    # If no arguments provided save to default database
-                    db_connection = connect_to_db("tree.db")
-                    save_relative(add_new_relative, db_connection)
-                    print("New relative saved in tree.db")
+            while True:
+                add_new_relative = new_relative()
+                answer = input("Is the provided information correct? [Y/N] ")
+                if answer == "Y":
+                    if len(sys.argv) == 1:
+                        # If no arguments provided save to default database
+                        db_connection = connect_to_db("tree.db")
+                        save_relative(add_new_relative, db_connection)
+                        save_feedback = ("New relative (", add_new_relative.first_name,
+                                         " ", add_new_relative.last_name,
+                                         ") saved in tree.db")
+                        print(str(save_feedback))
+                        break
 
-                elif (len(sys.argv) == 2) and (sys.argv[1].endswith(".db")):
-                    # If custom .db file provided, save there
-                    db_connection = connect_to_db(sys.argv[1])
-                    save_relative(add_new_relative, db_connection)
-                    print(
-                        f"New relative ({add_new_relative.first_name} {add_new_relative.last_name}) saved in {sys.argv[1]}")
+                    elif (len(sys.argv) == 2) and (sys.argv[1].endswith(".db")):
+                        # If custom .db file provided, save there
+                        db_connection = connect_to_db(sys.argv[1])
+                        save_relative(add_new_relative, db_connection)
+                        save_feedback = ("New relative (", add_new_relative.first_name,
+                                         " ", add_new_relative.last_name,
+                                         ") saved in ", sys.argv[1])
+                        print(str(save_feedback))
+                        break
 
-                elif (len(sys.argv) == 2) and (sys.argv[1].endswith(".csv")):
-                    try:
-                        with open(sys.argv[1], "a", encoding="UTF-8") as file:
-                            writer = csv.DictWriter(file, fieldnames=FEATURES)
-                            writer.writerow(add_new_relative.__dict__)
-                    except FileNotFoundError:
-                        sys.exit("File not found")
+                    elif (len(sys.argv) == 2) and (sys.argv[1].endswith(".csv")):
+                        try:
+                            with open(sys.argv[1], "a", encoding="UTF-8") as file:
+                                writer = csv.DictWriter(
+                                    file, fieldnames=FEATURES)
+                                writer.writerow(add_new_relative.__dict__)
+                                save_feedback = ("New relative (", add_new_relative.first_name,
+                                                 " ", add_new_relative.last_name,
+                                                 ") saved in ", sys.argv[1])
+                                print(str(save_feedback))
+                                break
+                        except FileNotFoundError:
+                            sys.exit("File not found")
+                    else:
+                        sys.exit("Wrong arguments")
+
+                elif answer == "N":
+                    answer_try = input("Try again? [Y/N] ")
+                    if answer_try == "Y":
+                        continue
+                    else:
+                        sys.exit("Exited.")
+
                 else:
-                    sys.exit()
-            else:
-                sys.exit("Person info not correct. Discarded. Exited")
+                    sys.exit("Wrong input. Exited.")
 
         # 2. Modify existing person in database
         elif start == "2":

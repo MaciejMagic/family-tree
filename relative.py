@@ -156,11 +156,13 @@ class Person():
 
     # Methods
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self._date_of_death is None:
             return f"{self._first_name} {self._last_name} ({self._date_of_birth} - )"
         else:
-            return f"{self._first_name} {self._last_name} ({self._date_of_birth} - {self._date_of_death})"
+            name = (self._first_name + ' ' + self._last_name +
+                    ', (' + self._date_of_birth + ' - ' + self._date_of_death)
+            return str(name)
 
     def age(self) -> int:
         """
