@@ -9,6 +9,7 @@ def generate_tree_csv(input_file: str) -> None:
     """
     Generates a svg file with a graph tree from a csv file
     """
+
     with open(input_file, "r", encoding="UTF-8") as file:
         try:
             tree = graphviz.Digraph(comment="Family Tree")
@@ -18,7 +19,7 @@ def generate_tree_csv(input_file: str) -> None:
                 tree.node(
                     str(person[id]), f"{person['first_name']} {person['last_name']}")
                 # tree.edge()
-                # TO DO
+                # TODO -Generate tree edges
 
             tree.render("output/tree.gv").replace("\\", "/")
             tree.render("output/tree.gv", view=True)
@@ -27,46 +28,30 @@ def generate_tree_csv(input_file: str) -> None:
             sys.exit("Invalid file")
 
 
-def generate_tree_db(*args) -> None:
+def generate_tree_db(input_file: str) -> None:
     """
-    Generates a svg file with a graph tree from database records
+    Generates a svg graph file of a tree from database
     """
-    # TO DO - sqlite db reader - iterate through records
-    if len(args) == 1:
-        with open(args[0], "r", encoding="UTF-8") as file:
-            try:
-                tree = graphviz.Digraph(comment="Family Tree")
-                people = []
-                # Initialize database
-                db_connection = connect_to_db(file)
-                selection = db_connection.execute("SELECT * FROM family")
-                for person in selection:
-                    tree.node(
-                        str(person[id]), f"{person['first_name']} {person['last_name']}")
 
-                tree.render("output/tree.gv").replace("\\", "/")
-                tree.render("output/tree.gv", view=True)
+    with open(input_file, "r", encoding="UTF-8") as file:
+        try:
+            # Initialize graph object
+            tree = graphviz.Digraph(comment="Family Tree")
 
-            except FileNotFoundError:
-                sys.exit("File not found")
+            # Initialize database
+            db_connection = connect_to_db(file)
+            selection = db_connection.execute("SELECT * FROM family")
 
-    elif len(args) == 0:
-        with open("tree.db", "r", encoding="UTF-8") as file:
-            try:
-                tree = graphviz.Digraph(comment="Family Tree")
-                people = []
-                # Initialize database
-                db_connection = connect_to_db(file)
-                selection = db_connection.execute("SELECT * FROM family")
-                for person in selection:
-                    tree.node(
-                        str(person[id]), f"{person['first_name']} {person['last_name']}")
+            # Generate tree nodes
+            for person in selection:
+                tree.node(
+                    str(person[id]), f"{person['first_name']} {person['last_name']}")
 
-                tree.render("output/tree.gv").replace("\\", "/")
-                tree.render("output/tree.gv", view=True)
+            # TODO -Generate tree edges
 
-            except FileNotFoundError:
-                sys.exit("File not found")
+            # Generate output file
+            tree.render("output/tree.gv").replace("\\", "/")
+            tree.render("output/tree.gv", view=True)
 
-    else:
-        raise ValueError
+        except FileNotFoundError:
+            sys.exit("File not found")

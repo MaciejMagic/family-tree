@@ -114,11 +114,14 @@ Proceed with: """))
                 found = len(results)
                 if len(results) > 1:
                     for person in results:
-                        print(
-                            f"""{(len(results) + 1) - found}. {person.first_name} {person.last_name}, {person.date_of_birth}""")
+                        list_item = (((len(results) + 1) - found), '. ', person.first_name,
+                                     ' ', person.last_name, ', born ', person.date_of_birth)
+                        print(str(list_item))
                         found -= 1
+
                     # Ask which entry to edit
                     person_choice = input("Which person to edit? ")
+
                     # Person object to edit is:
                     person_to_edit = results[int(person_choice) - 1]
 
@@ -131,8 +134,6 @@ Proceed with: """))
 
                 edited_person = modify_relative(
                     person_to_edit, info_to_edit, new_content)
-
-                # TO DO - offload sql to a function ?
 
                 # Save to database with modified info
                 try:
@@ -151,7 +152,7 @@ Proceed with: """))
 
             elif (len(sys.argv) == 2) and (sys.argv[1].endswith(".db")):
                 db_connection = connect_to_db(sys.argv[1])
-                # TO DO - edit info
+                # TODO - edit info
                 # print(f"Modified info ({} {}) saved at {sys.argv[1]}")
 
             elif (len(sys.argv) == 2) and (sys.argv[1].endswith(".csv")):
@@ -159,11 +160,8 @@ Proceed with: """))
                     # Append info to csv file
                     with open(sys.argv[1], "a", encoding="UTF-8") as file:
                         writer = csv.DictWriter(file, fieldnames=FEATURES)
-
-                        # TO DO
-
-                        writer.writerow()
-
+                        # TODO
+                        # writer.writerow()
                         # print(f"Modified info ({} {}) saved at {sys.argv[1]}")
 
                 except FileNotFoundError:
@@ -173,7 +171,7 @@ Proceed with: """))
         elif start == "3":
             # If no arguments provided, generate from default database
             if len(sys.argv) == 1:
-                generate_tree_db()
+                generate_tree_db("tree.db")
             elif len(sys.argv) == 2:
                 # Load the provided .csv file
                 if sys.argv[1].endswith(".csv"):
@@ -181,14 +179,13 @@ Proceed with: """))
                 # Load the provided .db file
                 elif sys.argv[1].endswith(".db"):
                     generate_tree_db(sys.argv[1])
-            elif len(sys.argv) > 2:
-                sys.exit("Too many arguments")
             else:
-                sys.exit("Usage: python main.py ['file']")
+                show_help()
+                sys.exit("Too many arguments")
 
         # 4. Print list of all entries in database
         elif start == "4":
-            # TO DO - retrieve list of all records from db and print all
+            # TODO - retrieve list of all records from db and print all
             all_family = []
 
             # return all_family
@@ -198,6 +195,7 @@ Proceed with: """))
             sys.exit("Program exited by user")
 
         else:
+            show_help()
             sys.exit("Invalid input")
 
     except (ValueError, TypeError):
