@@ -1,7 +1,7 @@
 import sqlite3
 import sys
 
-from relative import Person
+from relative import Relative
 
 
 def show_help() -> None:
@@ -36,22 +36,22 @@ def connect_to_db(dbfile: str = "tree.db") -> sqlite3.Connection | None:
     return connection
 
 
-def new_relative() -> Person:
+def relative_new() -> Relative:
     """
-    Creates a Person object from user input
+    Creates a Relative object from user input
     """
 
     first_name = input("First name: ")
     last_name = input("Last name: ")
     gender = input("Gender (female / male): ")
 
-    # Create and return a new Person object based on user input
-    return Person(first_name, last_name, gender)
+    # Create and return a new Relative object based on user input
+    return Relative(first_name, last_name, gender)
 
 
-def save_relative(person: Person, database: sqlite3.Connection) -> None:
+def relative_save(person: Relative, database: sqlite3.Connection) -> None:
     """
-    Persists a Person object as a new row in database
+    Persists a Relative object as a new row in database
     """
 
     try:
@@ -83,11 +83,13 @@ def save_relative(person: Person, database: sqlite3.Connection) -> None:
         if result:
             print(
                 f"Relative info ({person.first_name} {person.last_name}) saved successfully")
+    elif answer == "N":
+        print("Action cancelled")
     else:
-        print("Wrong input / Action cancelled")
+        print("Wrong input")
 
 
-def load_relative(database: sqlite3.Connection, **kwargs) -> list[Person] | None:
+def relative_load(database: sqlite3.Connection, **kwargs) -> list[Relative] | None:
     """
     Returns relative/s specified by name from database as a list of Person objects
     """
@@ -99,16 +101,17 @@ def load_relative(database: sqlite3.Connection, **kwargs) -> list[Person] | None
     except sqlite3.Error as exc:
         raise sqlite3.Error from exc
 
+    # Print list of entries matched by SQL query
     found_relatives = []
     if results:
         for row in results:
-            found_relatives.append(Person(**row))
+            found_relatives.append(Relative(**row))
         return found_relatives
     else:
         return None
 
 
-def modify_relative(person: Person, info: int, content: str) -> Person:
+def relative_modify(person: Relative, info: int, content: str) -> Relative:
     """
     Modifies info of existing relative through a Person object
     """
@@ -136,3 +139,24 @@ def modify_relative(person: Person, info: int, content: str) -> Person:
             print("Wrong input")
 
     return person
+
+
+def relative_summary(person: Relative) -> dict | None:
+    """ Print all availible info about this person """
+
+    info = {
+        "First name": person.first_name,
+        "Last name": person.last_name,
+        "Gender": person.gender,
+        "Family name": person.family_name,
+        "Date of birth": person.date_of_birth,
+        "Place of birth": person.place_of_birth,
+        "Date of death": person.date_of_death,
+        "Place of death": person.place_of_death,
+        "Phone number": person.phone,
+        "Email address": person.email,
+        "Events": person.events,
+        "Description": person.desc
+    }
+
+    return info

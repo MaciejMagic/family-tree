@@ -1,17 +1,15 @@
 import pytest
-from main import connect_to_db
-from main import new_relative
-from main import save_relative
-from main import load_relative
+from main import (connect_to_db, relative_load, relative_modify, relative_new,
+                  relative_save)
 
 
-def test_new_relative():
+def test_relative_new():
     pass
 
 
-def test_save_relative():
+def test_relative_save():
     pass
 
 
-def test_load_relative():
+def test_relative_load():
     pass

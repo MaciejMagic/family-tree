@@ -1,9 +1,33 @@
+from abc import ABC, abstractmethod
 from datetime import date
 
-from validator_collection import checkers, errors, validators
+from validator_collection import checkers, validators
 
 
-class Person():
+class Person(ABC):
+    """
+    Abstract helper class for inheritance implementation
+    """
+
+    @abstractmethod
+    def age(self) -> int:
+        """
+        Returns person age based on current date or years lived if deceased
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def add_event(self, event: str) -> None:
+        """ Add new event to persons bio """
+        raise NotImplementedError
+
+    @abstractmethod
+    def add_desc(self, desc: str) -> None:
+        """ Add new description to persons bio """
+        raise NotImplementedError
+
+
+class Relative(Person):
     """
     Main app class for data storage and
     transitions: database <-> graph generation input
@@ -33,11 +57,15 @@ class Person():
         return self._first_name
 
     @first_name.setter
-    def first_name(self, first_name: str):
+    def first_name(self, first_name: str) -> None:
         if first_name.isalpha() is False:
-            raise ValueError
-        elif (first_name is None) or (14 < len(first_name) < 2):
-            raise ValueError
+            raise ValueError("Error: numeric characters in first name")
+        if first_name is None:
+            raise ValueError("Error: first name value empty")
+        if len(first_name) < 2:
+            raise ValueError("Error: first name too short")
+        if len(first_name) > 14:
+            raise ValueError("Error: first name too long")
         self._first_name = first_name
 
     @property
@@ -46,11 +74,15 @@ class Person():
         return self._last_name
 
     @last_name.setter
-    def last_name(self, last_name: str):
+    def last_name(self, last_name: str) -> None:
         if last_name.isalpha() is False:
-            raise ValueError
-        elif (last_name is None) or (35 < len(last_name) < 2):
-            raise ValueError
+            raise ValueError("Error: numeric characters in last name")
+        if last_name is None:
+            raise ValueError("Error: last name value empty")
+        if len(last_name) < 2:
+            raise ValueError("Error: last name too short")
+        if len(last_name) > 35:
+            raise ValueError("Error: last name too long")
         self._last_name = last_name
 
     @property
@@ -59,99 +91,144 @@ class Person():
         return self._gender
 
     @gender.setter
-    def gender(self, gender: str):
-        if gender.lower() not in ['female', 'male']:
-            raise ValueError
+    def gender(self, gender: str) -> None:
+        if gender.strip().lower() not in ['female', 'male']:
+            raise ValueError("Error: gender must be 'female' or 'male'")
         self._gender = gender
 
     @property
-    def family_name(self) -> str:
+    def family_name(self) -> str | None:
         """ Returns objects family last name """
         return self._family_name
 
     @family_name.setter
-    def family_name(self, family_name: str):
-        # No alphabetic validation to allow regnal / family numbers
+    def family_name(self, family_name: str) -> None:
+        # No alphabetic validation - to allow regnal / family numbers
         if family_name:
-            if (35 < len(family_name) < 2):
-                raise ValueError
+            if len(family_name) < 2:
+                raise ValueError("Error: Family name too short")
+            if len(family_name) > 35:
+                raise ValueError("Error: Family name too long")
             self._family_name = family_name
         else:
             self._family_name = None
 
     @property
-    def date_of_birth(self) -> str:
+    def date_of_birth(self) -> str | None:
         """ Returns this persons birthday """
         return repr(self._date_of_birth)
 
     @date_of_birth.setter
-    def date_of_birth(self, date_of_birth: str):
+    def date_of_birth(self, date_of_birth: str) -> None:
         # Date input must be in ISO 8601 format 'YYYY-MM-DD'
         if checkers.is_date(date_of_birth):
             year, month, day = str(date_of_birth).split("-")
             self._date_of_birth = date(int(year), int(month), int(day))
         else:
-            raise ValueError("Invalid date format")
+            self._date_of_birth = None
+            raise ValueError(
+                "Error: Invalid date format. Must be 'YYYY-MM-DD'")
 
     @property
-    def date_of_death(self) -> str:
+    def place_of_birth(self) -> str | None:
+        """ Returns this persons place of birth """
+        return self._place_of_birth
+
+    @place_of_birth.setter
+    def place_of_birth(self, place_of_birth: str) -> None:
+        if place_of_birth:
+            if len(place_of_birth) < 2:
+                raise ValueError("Error: city name too short")
+            if len(place_of_birth) > 60:
+                raise ValueError("Error: city name too long")
+            self._place_of_birth = place_of_birth
+        else:
+            self._place_of_birth = None
+            raise ValueError("Error: city name value empty")
+
+    @property
+    def date_of_death(self) -> str | None:
         """ Returns this persons date of death """
         return repr(self._date_of_death)
 
     @date_of_death.setter
-    def date_of_death(self, date_of_death: str):
+    def date_of_death(self, date_of_death: str) -> None:
         # Date input must be in ISO 8601 format 'YYYY-MM-DD'
         if checkers.is_date(date_of_death):
             year, month, day = str(date_of_death).split("-")
             self._date_of_death = date(int(year), int(month), int(day))
         else:
-            raise ValueError("Invalid date format")
+            self._date_of_death = None
+            raise ValueError(
+                "Error: Invalid date format. Must be 'YYYY-MM-DD'")
 
     @property
-    def phone(self) -> str:
+    def place_of_death(self) -> str | None:
+        """ Returns this persons place of death """
+        return self._place_of_death
+
+    @place_of_death.setter
+    def place_of_death(self, place_of_death: str) -> None:
+        if place_of_death:
+            if len(place_of_death) < 2:
+                raise ValueError("Error: city name too short")
+            if len(place_of_death) > 60:
+                raise ValueError("Error: city name too long")
+            self._place_of_death = place_of_death
+        else:
+            self._place_of_death = None
+            raise ValueError("Error: city name value empty")
+
+    @property
+    def phone(self) -> str | None:
         """ Returns this persons phone number """
         return self._phone
 
     @phone.setter
-    def phone(self, phone: str):
-        # Check if inputed phone number string has at least 7 digits
+    def phone(self, phone: str) -> None:
+        # Check if phone number string has at least 7 digits
         if (16 > len(filter(str.isdigit, phone)) > 6):
             self._phone = phone
         else:
+            self._phone = None
             raise ValueError(
-                "Phone value must be numerical and at least 7 digits long")
+                "Error: Phone number must be numerical and min. 7 digits long")
 
     @property
-    def email(self) -> str:
+    def email(self) -> str | None:
         """ Returns this persons email address """
         return self._email
 
     @email.setter
-    def email(self, email_address: str):
-        try:
-            if checkers.is_email(email_address):
-                self._email = validators.email(email_address, allow_empty=True)
-            else:
-                raise ValueError("Invalid email value")
-        except errors.InvalidEmailError as exc:
-            raise errors.InvalidEmailError("Invalid email address") from exc
+    def email(self, email_address: str) -> None:
+        if checkers.is_email(email_address):
+            self._email = validators.email(email_address, allow_empty=True)
+        else:
+            self._email = None
+            raise ValueError("Error: invalid email address")
 
     @property
     def events(self) -> list[str]:
         """ Returns this persons saved events """
-        return self._events
+        if not self._events:
+            print("Events are empty")
+        else:
+            return self._events
 
     @events.setter
-    def events(self, event):
+    def events(self, event) -> None:
         self._events.append(event)
 
     @property
     def desc(self) -> list[str]:
         """ Returns this persons description """
-        return self._desc
+        if not self._desc:
+            print("Description is empty")
+        else:
+            return self._desc
 
     @desc.setter
-    def desc(self, desc):
+    def desc(self, desc) -> None:
         self._desc.append(desc)
 
     # Methods
@@ -161,7 +238,7 @@ class Person():
             return f"{self._first_name} {self._last_name} ({self._date_of_birth} - )"
         else:
             name = (self._first_name + ' ' + self._last_name +
-                    ', (' + self._date_of_birth + ' - ' + self._date_of_death)
+                    ', (' + self._date_of_birth + ' - ' + self._date_of_death + ')')
             return str(name)
 
     def age(self) -> int:
