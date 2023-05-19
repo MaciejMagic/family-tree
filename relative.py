@@ -161,7 +161,7 @@ class Person():
             return f"{self._first_name} {self._last_name} ({self._date_of_birth} - )"
         else:
             name = (self._first_name + ' ' + self._last_name +
-                    ', (' + self._date_of_birth + ' - ' + self._date_of_death)
+                    ', (' + self._date_of_birth + ' - ' + self._date_of_death + ')')
             return str(name)
 
     def age(self) -> int:
