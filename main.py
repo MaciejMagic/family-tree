@@ -2,8 +2,8 @@ import csv
 import sqlite3
 import sys
 
-from helpers import (connect_to_db, load_relative, modify_relative,
-                     new_relative, save_relative, show_help)
+from helpers import (connect_to_db, relative_load, relative_modify,
+                     relative_new, relative_save, show_help)
 from visualize import generate_tree_csv, generate_tree_db
 
 FEATURES = ["first_name", "last_name", "gender", "family_name",
@@ -32,13 +32,13 @@ Proceed with: """)
         # 1. Add new person to database
         if start == "1":
             while True:
-                add_new_relative = new_relative()
+                add_new_relative = relative_new()
                 answer = input("Is the provided information correct? [Y/N] ")
                 if answer == "Y":
                     if len(sys.argv) == 1:
                         # If no arguments provided save to default database
                         db_connection = connect_to_db("tree.db")
-                        save_relative(add_new_relative, db_connection)
+                        relative_save(add_new_relative, db_connection)
                         save_feedback = ("New relative (", add_new_relative.first_name,
                                          " ", add_new_relative.last_name,
                                          ") saved in tree.db")
@@ -48,7 +48,7 @@ Proceed with: """)
                     elif (len(sys.argv) == 2) and (sys.argv[1].endswith(".db")):
                         # If custom .db file provided, save there
                         db_connection = connect_to_db(sys.argv[1])
-                        save_relative(add_new_relative, db_connection)
+                        relative_save(add_new_relative, db_connection)
                         save_feedback = ("New relative (", add_new_relative.first_name,
                                          " ", add_new_relative.last_name,
                                          ") saved in ", sys.argv[1])
@@ -107,7 +107,7 @@ Proceed with: """))
                 db_connection = connect_to_db("tree.db")
 
                 # 'load_relative' function returns a list of Person objects
-                results = load_relative(
+                results = relative_load(
                     db_connection, first_name=first_name, last_name=last_name)
 
                 # If there are multiple people with the given name - list them
@@ -132,7 +132,7 @@ Proceed with: """))
                 else:
                     person_to_edit = results[0]
 
-                edited_person = modify_relative(
+                edited_person = relative_modify(
                     person_to_edit, info_to_edit, new_content)
 
                 # Save to database with modified info
