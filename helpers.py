@@ -38,7 +38,7 @@ def connect_to_db(dbfile: str = "tree.db") -> sqlite3.Connection | None:
 
 def relative_new() -> Relative:
     """
-    Creates a Relative object from user input
+    Collects basic info from user input and returns a Relative-class object
     """
 
     first_name = input("First name: ")
@@ -91,7 +91,7 @@ def relative_save(person: Relative, database: sqlite3.Connection) -> None:
 
 def relative_load(database: sqlite3.Connection, **kwargs) -> list[Relative] | None:
     """
-    Returns relative/s specified by name from database as a list of Person objects
+    Returns relative/s specified by name from db as a list of Relative-class objects
     """
 
     try:
@@ -113,7 +113,7 @@ def relative_load(database: sqlite3.Connection, **kwargs) -> list[Relative] | No
 
 def relative_modify(person: Relative, info: int, content: str) -> Relative:
     """
-    Modifies info of existing relative through a Person object
+    Modifies info of existing relative through a Relative-class object
     """
 
     match info:
@@ -141,22 +141,17 @@ def relative_modify(person: Relative, info: int, content: str) -> Relative:
     return person
 
 
-def relative_summary(person: Relative) -> dict | None:
-    """ Print all availible info about this person """
+def relative_summary(person: Relative):
+    """ Prints all availible info about this person """
 
-    info = {
-        "First name": person.first_name,
-        "Last name": person.last_name,
-        "Gender": person.gender,
-        "Family name": person.family_name,
-        "Date of birth": person.date_of_birth,
-        "Place of birth": person.place_of_birth,
-        "Date of death": person.date_of_death,
-        "Place of death": person.place_of_death,
-        "Phone number": person.phone,
-        "Email address": person.email,
-        "Events": person.events,
-        "Description": person.desc
-    }
+    properties = [attribute for attribute in dir(person) if not attribute.startswith(
+        '_') and not callable(getattr(person, attribute))]
 
-    return info
+    summary = ""
+
+    for prop in properties:
+        if getattr(person, prop):
+            # TO DO - append to summary and return a multiline str
+            print(f"{prop}: {getattr(person, prop)}")
+
+    return summary

@@ -33,7 +33,7 @@ class Relative(Person):
     transitions: database <-> graph generation input
     """
 
-    def __init__(self, first_name, last_name, gender, **kwargs):
+    def __init__(self, first_name: str, last_name: str, gender: str, **kwargs):
         self.first_name = first_name
         self.last_name = last_name
         self.gender = gender
@@ -258,3 +258,12 @@ class Relative(Person):
     def add_desc(self, desc: str) -> None:
         """ Add new description to persons bio """
         self._desc.append(desc)
+
+    def list_info(self, should_print=False):
+        """ Prints all availible info about this person """
+
+        items = self.__dict__.items()
+        if should_print:
+            [print(f"{key}:\t\t{value}") for key, value in items]
+
+        return items
