@@ -6,7 +6,8 @@ from validator_collection import checkers, validators
 
 class Person(ABC):
     """
-    Abstract helper class for inheritance implementation
+    Abstract helper class for inheritance
+    and method implementation enforcement
     """
 
     @abstractmethod
@@ -17,13 +18,18 @@ class Person(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def add_event(self, event: str) -> None:
+    def event_add(self, event: str) -> None:
         """ Add new event to persons bio """
         raise NotImplementedError
 
     @abstractmethod
-    def add_desc(self, desc: str) -> None:
+    def desc_add(self, desc: str) -> None:
         """ Add new description to persons bio """
+        raise NotImplementedError
+
+    @abstractmethod
+    def info(self):
+        """ Prints all availible info about this person """
         raise NotImplementedError
 
 
@@ -48,6 +54,7 @@ class Relative(Person):
         self.events = kwargs.get("events")
         self._desc = []
         self.desc = kwargs.get("desc")
+        self.id = kwargs.get("id")
 
     # Properties
 
@@ -201,11 +208,13 @@ class Relative(Person):
 
     @email.setter
     def email(self, email_address: str) -> None:
+        if email_address == "delete":
+            self._email = None
         if checkers.is_email(email_address):
             self._email = validators.email(email_address, allow_empty=True)
         else:
             self._email = None
-            raise ValueError("Error: invalid email address")
+            raise ValueError("Invalid email address")
 
     @property
     def events(self) -> list[str]:
@@ -251,19 +260,26 @@ class Relative(Person):
             age_delta = self._date_of_death - self._date_of_birth
         return int(age_delta["years"])
 
-    def add_event(self, event: str) -> None:
+    def event_add(self, event: str) -> None:
         """ Add new event to persons bio """
         self._events.append(event)
 
-    def add_desc(self, desc: str) -> None:
+    def desc_add(self, desc: str) -> None:
         """ Add new description to persons bio """
         self._desc.append(desc)
 
-    def list_info(self, should_print=False):
-        """ Prints all availible info about this person """
+    def info(self) -> str:
+        """
+        Returns all availible info about this person in a multiline string
+        """
 
-        items = self.__dict__.items()
-        if should_print:
-            [print(f"{key}:\t\t{value}") for key, value in items]
+        properties = [attribute for attribute in dir(self) if not attribute.startswith(
+            '_') and not callable(getattr(self, attribute))]
 
-        return items
+        summary = ""
+
+        for prop in properties:
+            if getattr(self, prop):
+                summary += (f"{prop}: {getattr(self, prop)}" + "\n")
+
+        return summary

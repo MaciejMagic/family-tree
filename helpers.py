@@ -36,62 +36,98 @@ def connect_to_db(dbfile: str = "tree.db") -> sqlite3.Connection | None:
     return connection
 
 
-def relative_new() -> Relative:
+def relative_new() -> None:
     """
-    Collects basic info from user input and returns a Relative-class object
+    Collects basic info from user input - only for 3 required positional arguments.
+    Creates a new Relative-class object and inserts this data into db.
     """
 
-    first_name = input("First name: ")
-    last_name = input("Last name: ")
-    gender = input("Gender (female / male): ")
+    while True:
+        try:
+            first_name = input("First name: ")
+            last_name = input("Last name: ")
+            gender = input("Gender (female / male): ")
 
-    # Create and return a new Relative object based on user input
-    return Relative(first_name, last_name, gender)
+            answer = input("Is the provided information correct? [Y/N] ")
+            if answer == "Y":
+                db_connection = connect_to_db("tree.db")
+                new_relative = Relative(first_name, last_name, gender)
+                result = relative_save(new_relative, db_connection)
+                if result in [1, 2, 3, 4]:
+                    print("Adding new person unsuccessful")
+                    return
+                save_feedback = ("New relative (", new_relative.first_name,
+                                 " ", new_relative.last_name,
+                                 ") saved in tree.db")
+                print(str(save_feedback))
+                return
+            if answer == "N":
+                pass
+            else:
+                print("Info discarded")
+                return
+        except ValueError as exc:
+            raise ValueError from exc
 
 
-def relative_save(person: Relative, database: sqlite3.Connection) -> None:
+def relative_save(person: Relative, database: sqlite3.Connection):
     """
-    Persists a Relative object as a new row in database
+    Persists a Relative object as a new entry/row in database
     """
 
     try:
-        exists = database.execute("""SELECT * FROM family
+        matches = database.execute("""SELECT * FROM family
                                     WHERE first_name = ?
                                     AND last_name = ?""",
-                                  person.first_name, person.last_name)
+                                   person.first_name, person.last_name)
     except sqlite3.Error as exc1:
         raise sqlite3.Error from exc1
 
-    if len(exists) > 0:
+    insert = (
+        """INSERT INTO family (first_name, last_name, gender) VALUES (?, ?, ?)""")
+
+    if len(matches) > 0:
         print("Following people already exist with provided name:")
-        for match in exists:
-            print(
-                f"- {match['first_name']} {match['last_name']}, born {match['date_of_birth']}")
+        for match in matches:
+            match_id = ('- id:', match['id'], ', ', match['first_name'], ' ',
+                        match['last_name'], ', born ', match["date_of_birth"])
+            print(str(match_id))
 
-    answer = input("Are you sure? [Y/N] ")
-    if answer == "Y":
-        try:
-            result = database.execute("""INSERT INTO family
-                                         (first_name, last_name, gender)
-                                         VALUES (?, ?, ?)""",
-                                      person.first_name,
-                                      person.last_name,
-                                      person.gender)
-        except FileNotFoundError as exc2:
-            raise FileNotFoundError from exc2
+        feedback = f"Relative info ({person.first_name} {person.last_name}) saved successfully"
 
-        if result:
-            print(
-                f"Relative info ({person.first_name} {person.last_name}) saved successfully")
-    elif answer == "N":
-        print("Action cancelled")
+        answer = input("Add new person with the same credentials? [Y/N] ")
+        if answer == "Y":
+            try:
+                result = database.execute(insert, person.first_name,
+                                          person.last_name, person.gender)
+            except FileNotFoundError:
+                print("Error: database file not found")
+                return 1
+            except sqlite3.Error:
+                print("Error with database")
+                return 2
+
+            if result:
+                print(feedback)
+            return 0
+        elif answer == "N":
+            print("Action cancelled")
+            return 3
+        else:
+            print("Wrong input")
+            return 4
     else:
-        print("Wrong input")
+        result = database.execute(insert, person.first_name,
+                                  person.last_name, person.gender)
+        if result:
+            print(feedback)
+        return 0
 
 
 def relative_load(database: sqlite3.Connection, **kwargs) -> list[Relative] | None:
     """
-    Returns relative/s specified by name from db as a list of Relative-class objects
+    Returns a list of Relative-class objects from database,
+    specified by first_name and last_name keywords
     """
 
     try:
@@ -101,11 +137,10 @@ def relative_load(database: sqlite3.Connection, **kwargs) -> list[Relative] | No
     except sqlite3.Error as exc:
         raise sqlite3.Error from exc
 
-    # Print list of entries matched by SQL query
     found_relatives = []
     if results:
-        for row in results:
-            found_relatives.append(Relative(**row))
+        for match in results:
+            found_relatives.append(Relative(**match))
         return found_relatives
     else:
         return None
@@ -141,17 +176,9 @@ def relative_modify(person: Relative, info: int, content: str) -> Relative:
     return person
 
 
-def relative_summary(person: Relative):
-    """ Prints all availible info about this person """
+def relative_delete(person: Relative) -> None:
+    """
+    Removes an existing relative from database
+    """
 
-    properties = [attribute for attribute in dir(person) if not attribute.startswith(
-        '_') and not callable(getattr(person, attribute))]
-
-    summary = ""
-
-    for prop in properties:
-        if getattr(person, prop):
-            # TO DO - append to summary and return a multiline str
-            print(f"{prop}: {getattr(person, prop)}")
-
-    return summary
+    return
