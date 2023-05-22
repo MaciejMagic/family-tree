@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import date
 
+from main import FEATURES
 from validator_collection import checkers, validators
 
 
@@ -39,10 +40,10 @@ class Relative(Person):
     transitions: database <-> graph generation input
     """
 
-    def __init__(self, first_name: str, last_name: str, gender: str, **kwargs):
-        self.first_name = first_name
-        self.last_name = last_name
-        self.gender = gender
+    def __init__(self, **kwargs):
+        self.first_name = kwargs.get("first_name")
+        self.last_name = kwargs.get("last_name")
+        self.gender = kwargs.get("gender")
         self.family_name = kwargs.get("family_name")
         self.date_of_birth = kwargs.get("date_of_birth")
         self.place_of_birth = kwargs.get("place_of_birth")
@@ -54,7 +55,7 @@ class Relative(Person):
         self.events = kwargs.get("events")
         self._desc = []
         self.desc = kwargs.get("desc")
-        self.id = kwargs.get("id")
+        self.id = None
 
     # Properties
 
@@ -68,7 +69,7 @@ class Relative(Person):
         if first_name.isalpha() is False:
             raise ValueError("Error: numeric characters in first name")
         if first_name is None:
-            raise ValueError("Error: first name value empty")
+            self._first_name = "<missing>"
         if len(first_name) < 2:
             raise ValueError("Error: first name too short")
         if len(first_name) > 14:
@@ -85,7 +86,7 @@ class Relative(Person):
         if last_name.isalpha() is False:
             raise ValueError("Error: numeric characters in last name")
         if last_name is None:
-            raise ValueError("Error: last name value empty")
+            self._last_name = "<missing>"
         if len(last_name) < 2:
             raise ValueError("Error: last name too short")
         if len(last_name) > 35:
@@ -276,10 +277,10 @@ class Relative(Person):
         properties = [attribute for attribute in dir(self) if not attribute.startswith(
             '_') and not callable(getattr(self, attribute))]
 
-        summary = ""
+        summary = """\n"""
 
-        for prop in properties:
-            if getattr(self, prop):
-                summary += (f"{prop}: {getattr(self, prop)}" + "\n")
-
+        for prop_main in FEATURES:
+            for prop_instance in properties:
+                if (prop_main == prop_instance) and getattr(self, prop_instance):
+                    summary += (f"{prop_instance}: {getattr(self, prop_instance)}" + "\n")
         return summary
