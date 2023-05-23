@@ -163,3 +163,11 @@ def relative_delete(database: sqlite3.Connection, person: Relative) -> None:
         print("Deletion unsuccessful")
 
     return
+
+
+def relative_show_all(database: sqlite3.Connection) -> str:
+    """ Print all relatives from database """
+
+    # TODO - retrieve list of all records from db and print all
+
+    pass

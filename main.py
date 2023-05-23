@@ -1,9 +1,10 @@
 import sqlite3
 import sys
 
-from helpers import connect_to_db, show_help
-from relative_service import relative_load, relative_modify, relative_new
-from visualize import generate_tree_db
+from helpers import connect_to_db, show_help, start
+from relative_service import (relative_load, relative_modify, relative_new,
+                              relative_show_all)
+from visualize import generate_tree
 
 FEATURES = ("first_name", "last_name", "gender", "family_name",
             "date_of_birth", "place_of_birth", "date_of_death",
@@ -15,7 +16,7 @@ if __name__ == "__main__":
 
     for argument in sys.argv:
         if argument in ARGUMENTS:
-            if (argument == "-h") or (argument == "--help"):
+            if argument in ["-h", "--help"]:
                 show_help()
                 break
         else:
@@ -23,32 +24,25 @@ if __name__ == "__main__":
 
     try:
         db_connection = connect_to_db()
-        while True:
-            start = input("""Welcome to Family Tree
 
-Available options:
-    1. Add new relative
-    2. Modify info about existing relative
-    3. Generate tree
-    4. List all relatives
-    5. Exit
-Proceed with: """)
+        while True:
+            option = start()
 
             # 1. Add new person to database
-            if start == "1":
+            if option == 1:
                 while True:
                     relative_new(db_connection)
-                    another = input("Add another? [Y/N] ")
-                    if another == "Y":
+                    another = input("Add another? [Y/N] ").strip().lower()
+                    if another == "y":
                         pass
                     else:
                         break
 
             # 2. Modify existing person in database
-            elif start == "2":
+            elif option == 2:
                 # Ask for search parameters
-                first_name = input("Search for first name: ")
-                last_name = input("Search for last name: ")
+                first_name = input("Search for first name: ").strip()
+                last_name = input("Search for last name: ").strip()
 
                 # Ask which info to edit
                 info_to_edit = int(input("""Which info to add / edit:
@@ -61,10 +55,10 @@ Proceed with: """)
 7. Email address
 8. Events
 9. Description
-Proceed with: """))
+Proceed with: """).strip())
 
                 # Ask with what content to edit
-                new_content = input("Enter new info: ")
+                new_content = input("Enter new info: ").strip()
 
                 db_connection = connect_to_db("tree.db")
 
@@ -82,7 +76,7 @@ Proceed with: """))
                         found -= 1
 
                     # Ask which entry to edit
-                    person_choice = input("Which person to edit? ")
+                    person_choice = input("Which person to edit? ").strip()
 
                     # Person object to edit is:
                     person_to_edit = results[int(person_choice) - 1]
@@ -114,25 +108,17 @@ Proceed with: """))
                 except FileNotFoundError:
                     sys.exit("File not found")
 
-            # 3. Generate family tree
-            elif start == "3":
-                # If no arguments provided, generate from default database
-                if len(sys.argv) == 1:
-                    generate_tree_db("tree.db")
-                else:
-                    show_help()
-                    sys.exit("Too many arguments")
+            # 3. Generate tree
+            elif option == 3:
+                generate_tree()
 
-            # 4. Print list of all entries in database
-            elif start == "4":
-                # TODO - retrieve list of all records from db and print all
-                all_family = []
-
-                # return all_family
+            # 4. Print list of all relatives
+            elif option == 4:
+                print(relative_show_all())
 
             # 5. Exit
-            elif start == "5":
-                sys.exit("Program exited by user")
+            elif option == 5:
+                sys.exit()
 
             else:
                 show_help()

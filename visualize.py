@@ -4,7 +4,7 @@ import graphviz
 from helpers import connect_to_db
 
 
-def generate_tree_db(input_file: str) -> None:
+def generate_tree(input_file: str = "tree.db") -> None:
     """
     Generates a svg graph file of a tree from database
     """
