@@ -15,7 +15,7 @@ ARGUMENTS:
     PATH            provide a custom database file (*.db) in current dir
 
 OPTIONS:
-    -h, --help      show help
+    -h, --help      show this help
 
 """)
 
@@ -28,26 +28,32 @@ def connect_to_db(dbfile: str = "tree.db") -> sqlite3.Connection | None:
     connection = None
     try:
         connection = sqlite3.connect(dbfile)
-    except FileNotFoundError as error:
-        sys.exit(error)
+    except FileNotFoundError:
+        sys.exit("Databse file not found")
 
     return connection
 
 
-def start() -> int:
+def start() -> int | None:
     """ Starting options for the program """
 
-    option = input("""Welcome to Family Tree
+    try:
+        option = input("""Welcome to Family Tree
 
-Available options:
-    1. Add new relative
-    2. Modify info about existing relative
-    3. Generate tree
-    4. List all relatives
-    5. Exit
-Proceed with: """).strip()
+    Available options:
+        1. Add new relative
+        2. Modify info about existing relative
+        3. Generate tree
+        4. List all relatives
+        5. Exit
+    Proceed with: """).strip()
 
-    if option not in [1, 2, 3, 4, 5]:
-        raise ValueError("Wrong input")
+        if int(option) not in [1, 2, 3, 4, 5]:
+            print("Wrong input", file=sys.stderr)
+            return None
+
+    except TypeError:
+        print("Wrong option", file=sys.stderr)
+        return None
 
     return int(option)

@@ -11,6 +11,16 @@ class Person(ABC):
     and method implementation enforcement
     """
 
+    def __init__(self, **kwargs) -> None:
+        self.first_name = kwargs.get("first_name")
+        self.last_name = kwargs.get("last_name")
+        self.gender = kwargs.get("gender")
+        self.family_name = kwargs.get("family_name")
+        self.date_of_birth = kwargs.get("date_of_birth")
+        self.place_of_birth = kwargs.get("place_of_birth")
+        self.date_of_death = kwargs.get("date_of_death")
+        self.place_of_death = kwargs.get("place_of_death")
+
     @abstractmethod
     def age(self) -> int:
         """
@@ -41,14 +51,7 @@ class Relative(Person):
     """
 
     def __init__(self, **kwargs):
-        self.first_name = kwargs.get("first_name")
-        self.last_name = kwargs.get("last_name")
-        self.gender = kwargs.get("gender")
-        self.family_name = kwargs.get("family_name")
-        self.date_of_birth = kwargs.get("date_of_birth")
-        self.place_of_birth = kwargs.get("place_of_birth")
-        self.date_of_death = kwargs.get("date_of_death")
-        self.place_of_death = kwargs.get("place_of_death")
+        super().__init__()
         self.phone = kwargs.get("phone")
         self.email = kwargs.get("email")
         self._events = []

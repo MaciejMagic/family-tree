@@ -3,7 +3,7 @@ import sys
 
 from helpers import connect_to_db, show_help, start
 from relative_service import (relative_load, relative_modify, relative_new,
-                              relative_show_all)
+                              relatives_show_all)
 from visualize import generate_tree
 
 FEATURES = ("first_name", "last_name", "gender", "family_name",
@@ -26,10 +26,10 @@ if __name__ == "__main__":
         db_connection = connect_to_db()
 
         while True:
-            option = start()
+            start_option = start()
 
             # 1. Add new person to database
-            if option == 1:
+            if start_option == 1:
                 while True:
                     relative_new(db_connection)
                     another = input("Add another? [Y/N] ").strip().lower()
@@ -39,7 +39,7 @@ if __name__ == "__main__":
                         break
 
             # 2. Modify existing person in database
-            elif option == 2:
+            elif start_option == 2:
                 # Ask for search parameters
                 first_name = input("Search for first name: ").strip()
                 last_name = input("Search for last name: ").strip()
@@ -109,20 +109,19 @@ Proceed with: """).strip())
                     sys.exit("File not found")
 
             # 3. Generate tree
-            elif option == 3:
+            elif start_option == 3:
                 generate_tree()
 
             # 4. Print list of all relatives
-            elif option == 4:
-                print(relative_show_all())
+            elif start_option == 4:
+                print(relatives_show_all(db_connection))
 
             # 5. Exit
-            elif option == 5:
+            elif start_option == 5:
                 sys.exit()
 
             else:
-                show_help()
-                sys.exit("Invalid input")
+                print("Wrong input")
 
     except (ValueError, TypeError):
         sys.exit("Input error")

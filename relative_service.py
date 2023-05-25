@@ -1,4 +1,5 @@
 import sqlite3
+import sys
 
 from main import FEATURES
 from relative import Relative
@@ -25,9 +26,8 @@ def relative_new(database: sqlite3.Connection) -> Relative | None:
                 if result in [1, 2, 3, 4]:
                     print("Adding new person unsuccessful")
                     return None
-                save_feedback = ("New relative (", new_relative.first_name,
-                                 " ", new_relative.last_name, ") saved")
-                print(str(save_feedback))
+                print("New relative (" + new_relative.first_name +
+                      " " + new_relative.last_name + ") saved")
                 return new_relative
             if answer == "N":
                 pass
@@ -94,22 +94,20 @@ def relative_save(person: Relative, database: sqlite3.Connection) -> int:
 
 def relative_load(database: sqlite3.Connection, **kwargs) -> list[Relative] | None:
     """
-    Returns a list of Relative-class objects from database,
-    specified by first_name and last_name keywords
+    Returns a list of Relative-class objects
+    specified by first_name and last_name keywords from database
     """
 
     try:
         results = database.execute("""SELECT * FROM family
-                                      WHERE first_name = ? AND last_name = ?""",
+                                      WHERE first_name = ? AND last_name = ?
+                                      ORDER BY date_of_birth ASC""",
                                    kwargs["first_name"], kwargs["last_name"])
-    except sqlite3.Error as exc:
-        raise sqlite3.Error from exc
+    except sqlite3.Error:
+        print("Loading error with database", file=sys.stderr)
 
-    found_relatives = []
     if results:
-        for match in results:
-            found_relatives.append(Relative(**match))
-        return found_relatives
+        return list(map(lambda match: Relative(**match), results))
 
     return None
 
@@ -149,13 +147,15 @@ def relative_delete(database: sqlite3.Connection, person: Relative) -> None:
     Removes an existing relative from database
     """
 
+    # TODO - need to load first - ask for which to delete
+
     delete_query = """DELETE FROM family WHERE first_name = ? AND last_name = ? AND id = ?"""
 
     try:
         delete = database.execute(
             delete_query, person.first_name, person.last_name, person.id)
-    except sqlite3.Error as exc:
-        raise sqlite3.Error from exc
+    except sqlite3.Error:
+        print("Deletion error with database", file=sys.stderr)
 
     if delete:
         print("Deletion successful")
@@ -165,9 +165,23 @@ def relative_delete(database: sqlite3.Connection, person: Relative) -> None:
     return
 
 
-def relative_show_all(database: sqlite3.Connection) -> str:
-    """ Print all relatives from database """
+def relatives_show_all(database: sqlite3.Connection) -> str | None:
+    """
+    Retrieve all entries from database, print all to stdout
+    """
 
-    # TODO - retrieve list of all records from db and print all
+    try:
+        results = database.execute("""SELECT * FROM family
+                                      ORDER BY date_of_birth ASC""")
+    except sqlite3.Error:
+        print("Loading (all entries) error with database", file=sys.stderr)
 
-    pass
+    family_all = """\n"""
+
+    if results:
+        for person in results:
+            family_all += (person["first_name"] + " " + person["last_name"] + " (" +
+                           person["date_of_birth"] + " - " + person["date_of_death"] + ")" + "\n")
+            return family_all
+
+    return None
