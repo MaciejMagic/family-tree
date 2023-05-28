@@ -40,9 +40,35 @@ if __name__ == "__main__":
 
             # 2. Modify existing person in database
             elif start_option == 2:
-                # Ask for search parameters
+
                 first_name = input("Search for first name: ").strip()
                 last_name = input("Search for last name: ").strip()
+
+                # Search for list of matches
+                relatives_loaded = relative_load(
+                    db_connection, first_name=first_name, last_name=last_name)
+
+                # If there are multiple people with the given name - list them
+                found = len(relatives_loaded)
+                if len(relatives_loaded) > 1:
+                    for person in relatives_loaded:
+                        list_item = (((len(relatives_loaded) + 1) - found), '. ', person.first_name,
+                                     ' ', person.last_name, ', born ', person.date_of_birth)
+                        print(str(list_item))
+                        found -= 1
+
+                    # Ask which entry to edit
+                    person_choice = input("Which person to edit? ").strip()
+
+                    # Person object to edit is:
+                    person_to_edit = relatives_loaded[int(person_choice) - 1]
+
+                # If there are none - exit
+                elif relatives_loaded is None:
+                    print("No such person in database")
+
+                else:
+                    person_to_edit = relatives_loaded[0]
 
                 # Ask which info to edit
                 info_to_edit = int(input("""Which info to add / edit:
@@ -60,35 +86,7 @@ Proceed with: """).strip())
                 # Ask with what content to edit
                 new_content = input("Enter new info: ").strip()
 
-                db_connection = connect_to_db("tree.db")
-
-                # 'load_relative' function returns a list of Person objects
-                results = relative_load(
-                    db_connection, first_name=first_name, last_name=last_name)
-
-                # If there are multiple people with the given name - list them
-                found = len(results)
-                if len(results) > 1:
-                    for person in results:
-                        list_item = (((len(results) + 1) - found), '. ', person.first_name,
-                                     ' ', person.last_name, ', born ', person.date_of_birth)
-                        print(str(list_item))
-                        found -= 1
-
-                    # Ask which entry to edit
-                    person_choice = input("Which person to edit? ").strip()
-
-                    # Person object to edit is:
-                    person_to_edit = results[int(person_choice) - 1]
-
-                # If there are none - exit
-                elif results is None:
-                    sys.exit("No such person in database")
-
-                else:
-                    person_to_edit = results[0]
-
-                edited_person = relative_modify(
+                person_edited = relative_modify(
                     person_to_edit, info_to_edit, new_content)
 
                 # Save to database with modified info
@@ -97,8 +95,8 @@ Proceed with: """).strip())
                                             VALUES(?) WHERE first_name = ? AND last_name = ?""",
                                           info_to_edit,
                                           new_content,
-                                          edited_person.first_name,
-                                          edited_person.last_name)
+                                          person_edited.first_name,
+                                          person_edited.last_name)
 
                     print("Modified info (" + person_to_edit.first_name +
                           " " + person_to_edit.last_name + ") saved")

@@ -221,24 +221,24 @@ class Relative(Person):
             raise ValueError("Invalid email address")
 
     @property
-    def events(self) -> list[str]:
+    def events(self) -> list[str] | None:
         """ Returns this persons saved events """
         if not self._events:
             print("Events are empty")
-        else:
-            return self._events
+            return None
+        return self._events
 
     @events.setter
     def events(self, event) -> None:
         self._events.append(event)
 
     @property
-    def desc(self) -> list[str]:
+    def desc(self) -> list[str] | None:
         """ Returns this persons description """
         if not self._desc:
             print("Description is empty")
-        else:
-            return self._desc
+            return None
+        return self._desc
 
     @desc.setter
     def desc(self, desc) -> None:

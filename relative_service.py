@@ -7,95 +7,86 @@ from relative import Relative
 
 def relative_new(database: sqlite3.Connection) -> Relative | None:
     """
-    Collects basic info from user input - only for 3 required positional arguments.
-    Creates a new Relative-class object and inserts this data into db.
-    """
-
-    while True:
-        try:
-            print("Provide info for a new person: ('Enter' to skip)")
-            person_new_dict = {}
-            for feature in FEATURES:
-                feature_new = input(f"{feature.replace('_', ' ').title()}: ")
-                person_new_dict[feature] = feature_new
-
-            answer = input("Is the provided information correct? [Y/N] ")
-            if answer == "Y":
-                new_relative = Relative(**person_new_dict)
-                result = relative_save(new_relative, database)
-                if result in [1, 2, 3, 4]:
-                    print("Adding new person unsuccessful")
-                    return None
-                print("New relative (" + new_relative.first_name +
-                      " " + new_relative.last_name + ") saved")
-                return new_relative
-            if answer == "N":
-                pass
-            else:
-                print("Info discarded")
-                return None
-        except ValueError as exc:
-            raise ValueError from exc
-
-
-def relative_save(person: Relative, database: sqlite3.Connection) -> int:
-    """
-    Persists a Relative object as a new entry/row in database
+    Collects info for each attribute from user input.
+    Creates a new Relative object and inserts as a row into database.
     """
 
     try:
-        matches = database.execute("""SELECT * FROM family
-                                    WHERE first_name = ?
-                                    AND last_name = ?""",
-                                   person.first_name, person.last_name)
-    except sqlite3.Error as exc1:
-        raise sqlite3.Error from exc1
+        print("Provide info for a new person: ('Enter' to skip)")
+        new_relative = Relative()
+        for feature in FEATURES:
+            feature_value = input(f"{feature.replace('_', ' ').title()}: ")
+            try:
+                setattr(new_relative, feature, feature_value)
+            except ValueError:
+                print("Input value error")
+            finally:
+                setattr(new_relative, feature, None)
 
+        answer = input(
+            "Is the provided information correct? [Y/N] ").strip().lower()
+        if answer == "y":
+            result = relative_new_save(new_relative, database)
+            if result in [1, 2, 3]:
+                print("Adding new person unsuccessful")
+                return None
+            print("New relative (" + new_relative.first_name +
+                  " " + new_relative.last_name + ") saved")
+            return new_relative
+        else:
+            print("Info discarded")
+            return None
+    except AttributeError:
+        print("Attribute value error. Info discarded")
+        return None
+
+
+def relative_new_save(person: Relative, database: sqlite3.Connection) -> int:
+    """
+    Persists a Relative object as a row in database
+    """
+
+    matches = relative_load(database, first_name=person.first_name,
+                            last_name=person.last_name)
+
+    # ALL the info
     insert_query = (
         """INSERT INTO family (first_name, last_name, gender) VALUES (?, ?, ?)""")
 
-    if len(matches) > 0:
+    feedback = f"Relative info ({person.first_name} {person.last_name}) saved successfully"
+
+    if matches:
         print("Following people already exist with provided name:")
         for match in matches:
-            match_id = ('- id:', match['id'], ', ', match['first_name'], ' ',
-                        match['last_name'], ', born ', match["date_of_birth"])
-            print(str(match_id))
+            print("- id:", match['id'], ", ", match['first_name'], " ",
+                  match['last_name'], ", born ", match['date_of_birth'])
 
-        feedback = f"Relative info ({person.first_name} {person.last_name}) saved successfully"
-
-        answer = input("Add new person with the same credentials? [Y/N] ")
-        if answer == "Y":
-            try:
-                result = database.execute(insert_query, person.first_name,
-                                          person.last_name, person.gender)
-            except FileNotFoundError:
-                print("Error: database file not found")
-                return 1
-            except sqlite3.Error:
-                print("Error with database")
-                return 2
-            if result:
-                print(feedback)
-            return 0
-        if answer == "N":
+        answer = input(
+            "Add new person with the same credentials? [Y/N] ").strip().lower()
+        if answer == "y":
+            pass
+        else:
             print("Action cancelled")
-            return 3
+            return 1
 
-        print("Wrong input")
-        return 4
-
-    else:
-        result = database.execute(insert_query, person.first_name,
+    try:
+        insert = database.execute(insert_query, person.first_name,
                                   person.last_name, person.gender)
-        if result:
-            print(feedback)
-        return 0
+    except FileNotFoundError:
+        print("Error: database file not found")
+        return 2
+    except sqlite3.Error:
+        print("Error with database")
+        return 3
+    if insert:
+        print(feedback)
+    return 0
 
 
 def relative_load(database: sqlite3.Connection, **kwargs) -> list[Relative] | None:
     """
-    Returns a list of Relative-class objects
-    specified by first_name and last_name keywords from database
+    Returns a list of Relative-class objects specified by first_name and last_name
+    keywords, loaded from provided database
     """
 
     try:
@@ -110,6 +101,10 @@ def relative_load(database: sqlite3.Connection, **kwargs) -> list[Relative] | No
         return list(map(lambda match: Relative(**match), results))
 
     return None
+
+
+def relative_select():
+    return
 
 
 def relative_modify(person: Relative, info: int, content: str) -> Relative:
@@ -142,16 +137,35 @@ def relative_modify(person: Relative, info: int, content: str) -> Relative:
     return person
 
 
+def relative_update(person: Relative, database: sqlite3.Connection) -> None:
+    """
+    Updates existing row in database through a Relative object
+    """
+
+    for feature in FEATURES:
+        value = getattr(person, feature)
+
+        update_query = f"""UPDATE family SET {feature} = {value} WHERE id = ?"""
+
+        try:
+            update = database.execute(update_query, person.id)
+        except sqlite3.Error:
+            print("Loading error with database", file=sys.stderr)
+        if update:
+            print(f"{feature.replace('_', ' ').title()} update successful")
+
+
 def relative_delete(database: sqlite3.Connection, person: Relative) -> None:
     """
     Removes an existing relative from database
     """
 
-    # TODO - need to load first - ask for which to delete
-
     delete_query = """DELETE FROM family WHERE first_name = ? AND last_name = ? AND id = ?"""
 
     try:
+        if person.id is None:
+            print("Deletion unsuccessful - No object ID")
+            return
         delete = database.execute(
             delete_query, person.first_name, person.last_name, person.id)
     except sqlite3.Error:

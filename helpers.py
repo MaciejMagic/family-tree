@@ -20,14 +20,14 @@ OPTIONS:
 """)
 
 
-def connect_to_db(dbfile: str = "tree.db") -> sqlite3.Connection | None:
+def connect_to_db(database: str = "tree.db") -> sqlite3.Connection | None:
     """
     Establishes a connection to specified SQLite 3 database
     """
 
     connection = None
     try:
-        connection = sqlite3.connect(dbfile)
+        connection = sqlite3.connect(database)
     except FileNotFoundError:
         sys.exit("Databse file not found")
 
