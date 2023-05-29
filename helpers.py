@@ -44,11 +44,12 @@ def start() -> int | None:
         1. Add new relative
         2. Modify info about existing relative
         3. Generate tree
-        4. List all relatives
-        5. Exit
+        4. List all relatives (less detailed)
+        5. List all relatives (more detailed)
+        6. Exit
     Proceed with: """).strip()
 
-        if int(option) not in [1, 2, 3, 4, 5]:
+        if int(option) not in [1, 2, 3, 4, 5, 6]:
             print("Wrong input", file=sys.stderr)
             return None
 

@@ -1,14 +1,17 @@
 import sqlite3
 import sys
 
+import tabulate
 from helpers import connect_to_db, show_help, start
-from relative_service import (relative_load, relative_modify, relative_new,
+from relative_service import (relative_list_all, relative_load,
+                              relative_modify, relative_new,
                               relatives_show_all)
 from visualize import generate_tree
 
 FEATURES = ("first_name", "last_name", "gender", "family_name",
             "date_of_birth", "place_of_birth", "date_of_death",
-            "place_of_death", "phone", "email", "events", "desc")
+            "place_of_death", "phone", "email", "events", "desc",
+            "spouse", "children")
 
 ARGUMENTS = ("-h", "--help")
 
@@ -110,12 +113,16 @@ Proceed with: """).strip())
             elif start_option == 3:
                 generate_tree()
 
-            # 4. Print list of all relatives
+            # 4. Print a list of all relatives
             elif start_option == 4:
                 print(relatives_show_all(db_connection))
 
-            # 5. Exit
+            # 5. Print a detailed list of all relatives
             elif start_option == 5:
+                print(tabulate.tabulate(relative_list_all(db_connection)))
+
+            # 6. Exit
+            elif start_option == 6:
                 sys.exit()
 
             else:

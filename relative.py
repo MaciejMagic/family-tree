@@ -39,7 +39,7 @@ class Person(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def info(self):
+    def info(self) -> str:
         """ Prints all availible info about this person """
         raise NotImplementedError
 
@@ -50,7 +50,7 @@ class Relative(Person):
     transitions: database <-> graph generation input
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__()
         self.phone = kwargs.get("phone")
         self.email = kwargs.get("email")
@@ -58,6 +58,8 @@ class Relative(Person):
         self.events = kwargs.get("events")
         self._desc = []
         self.desc = kwargs.get("desc")
+        self.spouse = kwargs.get("spouse")
+        self.children = kwargs.get("children")
         self.id = None
 
     # Properties
