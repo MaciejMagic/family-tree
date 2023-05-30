@@ -1,10 +1,9 @@
 import sqlite3
 import sys
 
-from main import FEATURES
-from relative import Relative
+from app.main import FEATURES
 
-import tabulate
+from relative import Relative
 
 
 def relative_new(database: sqlite3.Connection) -> Relative | None:

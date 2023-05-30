@@ -1,12 +1,12 @@
 import sqlite3
 import sys
 
-import tabulate
-from helpers import connect_to_db, show_help, start
-from relative_service import (relative_list_all, relative_load,
-                              relative_modify, relative_new,
-                              relatives_show_all)
-from visualize import generate_tree
+from src.helpers import connect_to_db, show_help, start
+from src.relative_service import (relative_list_all, relative_load,
+                                  relative_modify, relative_new,
+                                  relatives_show_all)
+from src.visualize import generate_tree
+from tabulate import tabulate
 
 FEATURES = ("first_name", "last_name", "gender", "family_name",
             "date_of_birth", "place_of_birth", "date_of_death",
@@ -119,7 +119,7 @@ Proceed with: """).strip())
 
             # 5. Print a detailed list of all relatives
             elif start_option == 5:
-                print(tabulate.tabulate(relative_list_all(db_connection)))
+                print(tabulate(relative_list_all(db_connection)))
 
             # 6. Exit
             elif start_option == 6:

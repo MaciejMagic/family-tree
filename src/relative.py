@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import date
 
-from main import FEATURES
+from app.main import FEATURES
 from validator_collection import checkers, validators
 
 

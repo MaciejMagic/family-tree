@@ -20,7 +20,7 @@ OPTIONS:
 """)
 
 
-def connect_to_db(database: str = "tree.db") -> sqlite3.Connection | None:
+def connect_to_db(database: str = "db/tree.db") -> sqlite3.Connection | None:
     """
     Establishes a connection to specified SQLite 3 database
     """
