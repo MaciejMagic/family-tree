@@ -1,27 +1,33 @@
+import sqlite3
 import sys
 
 import graphviz
-from helpers import connect_to_db
+from src.relative_service import relative_select_all
 
 
-def generate_tree(input_file: str = "db/tree.db") -> None:
-    """
-    Generates a svg graph file of a tree from database
-    """
+def generate_tree(
+        database: sqlite3.Connection = None,
+        input_file: str = "db/tree.db"
+) -> None:
+    """ Generates a svg graph file of a tree from database """
 
     with open(input_file, "r", encoding="UTF-8") as file:
         try:
             # Initialize graph object
             tree = graphviz.Digraph(comment="Family Tree")
 
-            # Initialize database
-            db_connection = connect_to_db(file)
-            selection = db_connection.execute("SELECT * FROM family")
+            # Import list of dicts (relatives) from database
+            relatives = relative_select_all(database)
 
             # Generate tree nodes
-            for person in selection:
+            for person in relatives:
+                shape = "rect" if person["gender"] == "male" else "ellipse"
                 tree.node(
-                    str(person[id]), f"{person['first_name']} {person['last_name']}")
+                    str(person["id"]),
+                    f"{person['first_name']} {person['last_name']}",
+                    tooltip=f"{person['date_of_birth']} - {person['date_of_death']}",
+                    shape=shape
+                )
 
             # TODO -Generate tree edges
 

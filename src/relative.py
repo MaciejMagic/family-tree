@@ -1,47 +1,9 @@
-from abc import ABC, abstractmethod
+import sys
 from datetime import date
 
 from app.main import FEATURES
+from src.person import Person
 from validator_collection import checkers, validators
-
-
-class Person(ABC):
-    """
-    Abstract helper class for inheritance
-    and method implementation enforcement
-    """
-
-    def __init__(self, **kwargs) -> None:
-        self.first_name = kwargs.get("first_name")
-        self.last_name = kwargs.get("last_name")
-        self.gender = kwargs.get("gender")
-        self.family_name = kwargs.get("family_name")
-        self.date_of_birth = kwargs.get("date_of_birth")
-        self.place_of_birth = kwargs.get("place_of_birth")
-        self.date_of_death = kwargs.get("date_of_death")
-        self.place_of_death = kwargs.get("place_of_death")
-
-    @abstractmethod
-    def age(self) -> int:
-        """
-        Returns person age based on current date or years lived if deceased
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def event_add(self, event: str) -> None:
-        """ Add new event to persons bio """
-        raise NotImplementedError
-
-    @abstractmethod
-    def desc_add(self, desc: str) -> None:
-        """ Add new description to persons bio """
-        raise NotImplementedError
-
-    @abstractmethod
-    def info(self) -> str:
-        """ Prints all availible info about this person """
-        raise NotImplementedError
 
 
 class Relative(Person):
@@ -59,7 +21,9 @@ class Relative(Person):
         self._desc = []
         self.desc = kwargs.get("desc")
         self.spouse = kwargs.get("spouse")
+        self._children = []
         self.children = kwargs.get("children")
+        self.married: bool = False
         self.id = None
 
     # Properties
@@ -289,3 +253,10 @@ class Relative(Person):
                 if (prop_main == prop_instance) and getattr(self, prop_instance):
                     summary += (f"{prop_instance}: {getattr(self, prop_instance)}" + "\n")
         return summary
+
+    def marry(self, status: bool = True) -> None:
+        """ Change married status for this person """
+
+        if self.married is True:
+            print("Status not changed: already married", file=sys.stderr)
+        self.married = status

@@ -2,8 +2,8 @@ import sqlite3
 import sys
 
 from app.main import FEATURES
-
-from relative import Relative
+from src.relative import Relative
+from tabulate import tabulate
 
 
 def relative_new(database: sqlite3.Connection) -> Relative | None:
@@ -110,13 +110,23 @@ def relative_load(database: sqlite3.Connection, **kwargs) -> list[Relative] | No
     return None
 
 
-def relative_select():
-    return
+def relative_select_all(database: sqlite3.Connection) -> sqlite3.Cursor | None:
+    """ Selects all rows in database. Returns a cursor object """
+
+    try:
+        results = database.execute("""SELECT * FROM family
+                                      ORDER BY date_of_birth ASC""")
+    except sqlite3.Error:
+        print("Error with loading all entries from database", file=sys.stderr)
+
+    if results:
+        return results
+    return None
 
 
-def relative_modify(person: Relative, info: int, content: str) -> Relative:
+def relative_mod_attr(person: Relative, info: int, content: str) -> Relative:
     """
-    Modifies attributes in a Relative-class object
+    Modifies an attribute in a Relative-class object
     """
 
     match info:
@@ -144,7 +154,64 @@ def relative_modify(person: Relative, info: int, content: str) -> Relative:
     return person
 
 
-def relative_update(person: Relative, database: sqlite3.Connection) -> None:
+def relative_modify(database: sqlite3.Connection, first_name, last_name):
+    """
+    Modifies an existing person from database
+    """
+
+    # Search for list of matches
+    relatives_loaded = relative_load(
+        database, first_name=first_name, last_name=last_name)
+
+    # If there are multiple people with the given name - list them
+    found = len(relatives_loaded)
+    if len(relatives_loaded) > 1:
+        for person in relatives_loaded:
+            list_item = (((len(relatives_loaded) + 1) - found), '. ', person.first_name,
+                         ' ', person.last_name, ', born ', person.date_of_birth)
+            print(str(list_item))
+            found -= 1
+
+        # Ask which entry to edit
+        person_choice = input("Which person to edit (type number)? ").strip()
+
+        # Person object to edit is:
+        person_to_edit = relatives_loaded[int(person_choice) - 1]
+
+    # If there are none - exit
+    elif relatives_loaded is None:
+        print("No such person in database")
+        return None
+    else:
+        person_to_edit = relatives_loaded[0]
+
+    # Ask which info to edit
+    info_to_edit = int(input("""Which info to add / edit:
+1. Family name
+2. Date of birth
+3. Place of birth
+4. Date of death
+5. Place of death
+6. Phone number
+7. Email address
+8. Events
+9. Description
+Proceed with: """).strip())
+
+    # Ask with what new content to edit
+    new_content = input("Enter new info: ").strip()
+
+    person_edited = relative_mod_attr(
+        person_to_edit, info_to_edit, new_content)
+
+    # Save to database with modified info
+    relative_update(database, person_edited)
+
+    print("Modified info (" + person_to_edit.first_name +
+          " " + person_to_edit.last_name + ") saved")
+
+
+def relative_update(database: sqlite3.Connection, person: Relative) -> None:
     """
     Updates existing row in database through a Relative object
     """
@@ -158,9 +225,13 @@ def relative_update(person: Relative, database: sqlite3.Connection) -> None:
             update = database.execute(update_query, person.id)
         except sqlite3.Error:
             print("Loading error with database", file=sys.stderr)
+        except FileNotFoundError:
+            print("Error: database file not found", file=sys.stderr)
 
-        if update:
-            print(f"{feature.replace('_', ' ').title()} update successful")
+    if update:
+        print(f"{feature.replace('_', ' ').title()} update successful")
+    else:
+        print("Update unsuccessful")
 
 
 def relative_delete(database: sqlite3.Connection, person: Relative) -> None:
@@ -186,31 +257,25 @@ def relative_delete(database: sqlite3.Connection, person: Relative) -> None:
     return
 
 
-def relatives_show_all(database: sqlite3.Connection) -> str | None:
+def relatives_show_less(database: sqlite3.Connection) -> str | None:
     """
     Retrieve all entries from database, print all to stdout
     """
 
-    try:
-        results = database.execute("""SELECT * FROM family
-                                      ORDER BY date_of_birth ASC""")
-    except sqlite3.Error:
-        print("Error with loading all entries from database", file=sys.stderr)
-
-    family_all = """\n"""
+    results = relative_select_all(database)
 
     if results:
-        for person in results:
-            family_all += (person["first_name"] + " " + person["last_name"] + " (" +
-                           person["date_of_birth"] + " - " + person["date_of_death"] + ")" + "\n")
-            return family_all
-
+        return str([(person["first_name"] + " " + person["last_name"] + " ("
+                     + person["date_of_birth"] +
+                     " - " + person["date_of_death"]
+                     + ")" + "\n") for person in results])
     return None
 
 
-def relative_list_all(database: sqlite3.Connection):
-    """
-    Return a list of lists, from rows in database
-    """
+def relative_show_more(database: sqlite3.Connection) -> str:
+    """ Return all entries from database as a list of lists """
 
-    return
+    return tabulate(relative_select_all(database),
+                    headers="keys",
+                    tablefmt="mixed_grid",
+                    maxcolwidths=15)
