@@ -4,23 +4,19 @@ import sys
 
 
 def arguments() -> argparse.Namespace:
-    """ Command-line argument and flag handling """
+    """
+    Command-line arguments and flag handling.
+    Creates a parser object and returns a namespace of added arguments
+    """
 
     parser = argparse.ArgumentParser(
         description="CLI tool for generating a family tree as a svg/pdf graphic")
 
     parser.add_argument(
-        '-h',
-        '--help',
-        help='show this message',
-        required='False'
-    )
-
-    parser.add_argument(
         '-i',
         '--input',
         help='custom input file with database',
-        default='tree.db',
+        default='db/tree.db',
         required='False'
     )
 
@@ -35,7 +31,7 @@ def arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def connect_to_db(database: str = "db/tree.db") -> sqlite3.Connection | None:
+def connect_to_db(database: str = "data/tree.db") -> sqlite3.Connection | None:
     """
     Establishes a connection to specified SQLite 3 database
     """

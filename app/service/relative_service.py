@@ -1,8 +1,7 @@
 import sqlite3
 import sys
 
-from app.main import FEATURES
-from src.relative import Relative
+from app.model.relative import FEATURES, Relative
 from tabulate import tabulate
 
 
@@ -119,9 +118,9 @@ def relative_select_all(database: sqlite3.Connection) -> sqlite3.Cursor | None:
     except sqlite3.Error:
         print("Error with loading all entries from database", file=sys.stderr)
 
-    if results:
-        return results
-    return None
+    if not results:
+        return None
+    return results
 
 
 def relative_mod_attr(person: Relative, info: int, content: str) -> Relative:
@@ -181,7 +180,7 @@ def relative_modify(database: sqlite3.Connection, first_name, last_name):
     # If there are none - exit
     elif relatives_loaded is None:
         print("No such person in database")
-        return None
+        return
     else:
         person_to_edit = relatives_loaded[0]
 
@@ -259,7 +258,7 @@ def relative_delete(database: sqlite3.Connection, person: Relative) -> None:
 
 def relatives_show_less(database: sqlite3.Connection) -> str | None:
     """
-    Retrieve all entries from database, print all to stdout
+    Retrieve all entries from database, print basic info to stdout
     """
 
     results = relative_select_all(database)
@@ -273,7 +272,10 @@ def relatives_show_less(database: sqlite3.Connection) -> str | None:
 
 
 def relative_show_more(database: sqlite3.Connection) -> str:
-    """ Return all entries from database as a list of lists """
+    """
+    Retrieve all entries from database.
+    Return a multiline string formatted as a table.
+    """
 
     return tabulate(relative_select_all(database),
                     headers="keys",

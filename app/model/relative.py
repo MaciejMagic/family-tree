@@ -1,9 +1,12 @@
 import sys
 from datetime import date
 
-from app.main import FEATURES
-from src.person import Person
+from app.model.person import Person
 from validator_collection import checkers, validators
+
+FEATURES = ["first_name", "last_name", "gender", "family_name", "date_of_birth",
+            "place_of_birth", "date_of_death", "place_of_death", "phone", "email",
+            "spouse", "children", "events", "desc"]
 
 
 class Relative(Person):
@@ -31,6 +34,7 @@ class Relative(Person):
     @property
     def first_name(self) -> str:
         """ Returns objects first name """
+
         return self._first_name
 
     @first_name.setter
@@ -48,6 +52,7 @@ class Relative(Person):
     @property
     def last_name(self) -> str:
         """ Returns objects last name """
+
         return self._last_name
 
     @last_name.setter
@@ -65,6 +70,7 @@ class Relative(Person):
     @property
     def gender(self) -> str:
         """ Returns person gender """
+
         return self._gender
 
     @gender.setter
@@ -76,6 +82,7 @@ class Relative(Person):
     @property
     def family_name(self) -> str | None:
         """ Returns objects family last name """
+
         return self._family_name
 
     @family_name.setter
@@ -93,6 +100,7 @@ class Relative(Person):
     @property
     def date_of_birth(self) -> str | None:
         """ Returns this persons birthday """
+
         return repr(self._date_of_birth)
 
     @date_of_birth.setter
@@ -109,6 +117,7 @@ class Relative(Person):
     @property
     def place_of_birth(self) -> str | None:
         """ Returns this persons place of birth """
+
         return self._place_of_birth
 
     @place_of_birth.setter
@@ -126,6 +135,7 @@ class Relative(Person):
     @property
     def date_of_death(self) -> str | None:
         """ Returns this persons date of death """
+
         return repr(self._date_of_death)
 
     @date_of_death.setter
@@ -142,6 +152,7 @@ class Relative(Person):
     @property
     def place_of_death(self) -> str | None:
         """ Returns this persons place of death """
+
         return self._place_of_death
 
     @place_of_death.setter
@@ -159,12 +170,13 @@ class Relative(Person):
     @property
     def phone(self) -> str | None:
         """ Returns this persons phone number """
+
         return self._phone
 
     @phone.setter
     def phone(self, phone: str) -> None:
         # Check if phone number string has at least 7 digits
-        if (16 > len(filter(str.isdigit, phone)) > 6):
+        if len(filter(str.isdigit, phone)) > 6 and len(filter(str.isdigit, phone)) < 16:
             self._phone = phone
         else:
             self._phone = None
@@ -174,6 +186,7 @@ class Relative(Person):
     @property
     def email(self) -> str | None:
         """ Returns this persons email address """
+
         return self._email
 
     @email.setter
@@ -189,6 +202,7 @@ class Relative(Person):
     @property
     def events(self) -> list[str] | None:
         """ Returns this persons saved events """
+
         if not self._events:
             print("Events are empty")
             return None
@@ -201,6 +215,7 @@ class Relative(Person):
     @property
     def desc(self) -> list[str] | None:
         """ Returns this persons description """
+
         if not self._desc:
             print("Description is empty")
             return None
@@ -224,6 +239,7 @@ class Relative(Person):
         """
         Returns person age based on current date or years lived if deceased
         """
+
         if self._date_of_death is None:
             age_delta = date.today() - self._date_of_birth
         else:
@@ -232,10 +248,12 @@ class Relative(Person):
 
     def event_add(self, event: str) -> None:
         """ Add new event to persons bio """
+
         self._events.append(event)
 
     def desc_add(self, desc: str) -> None:
         """ Add new description to persons bio """
+
         self._desc.append(desc)
 
     def info(self) -> str:

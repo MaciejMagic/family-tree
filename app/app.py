@@ -1,14 +1,11 @@
 import sqlite3
 import sys
 
-from src.helpers import arguments, connect_to_db, start
-from src.relative_service import (relative_modify, relative_new,
-                                  relative_show_more, relatives_show_less)
-from src.visualize import generate_tree
-
-FEATURES = ["first_name", "last_name", "gender", "family_name", "date_of_birth",
-            "place_of_birth", "date_of_death", "place_of_death", "phone", "email",
-            "spouse", "children", "events", "desc",]
+from app.service.helpers import arguments, connect_to_db, start
+from app.service.relative_service import (relative_modify, relative_new,
+                                          relative_show_more,
+                                          relatives_show_less)
+from app.service.visualize import generate_tree
 
 if __name__ == "__main__":
 
@@ -38,7 +35,7 @@ if __name__ == "__main__":
 
             # 3. Generate tree
             elif start_option == 3:
-                generate_tree()
+                generate_tree(db_connection)
 
             # 4. Print a list of all relatives
             elif start_option == 4:
