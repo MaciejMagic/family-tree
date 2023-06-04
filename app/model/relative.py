@@ -4,9 +4,10 @@ from datetime import date
 from app.model.person import Person
 from validator_collection import checkers, validators
 
-FEATURES = ["first_name", "last_name", "gender", "family_name", "date_of_birth",
-            "place_of_birth", "date_of_death", "place_of_death", "phone", "email",
-            "spouse", "children", "events", "desc"]
+FEATURES = ["first_name", "last_name", "gender", "family_name",
+            "date_of_birth", "place_of_birth", "date_of_death", "place_of_death",
+            "mother", "father", "married", "spouse_current", "children",
+            "phone", "email", "events", "desc"]
 
 
 class Relative(Person):
@@ -17,17 +18,21 @@ class Relative(Person):
 
     def __init__(self, **kwargs) -> None:
         super().__init__()
-        self.phone = kwargs.get("phone")
-        self.email = kwargs.get("email")
+        self.id = None
         self._events = []
         self.events = kwargs.get("events")
         self._desc = []
         self.desc = kwargs.get("desc")
-        self.spouse = kwargs.get("spouse")
-        self._children = []
-        self.children = kwargs.get("children")
         self.married: bool = False
-        self.id = None
+        # self.generation = 0
+        # self.cluster = 0
+
+        # By others self.id from database
+        self.mother = None
+        self.father = None
+        self.spouse_current = None
+        self._children = []
+        self.children = None
 
     # Properties
 
@@ -225,6 +230,16 @@ class Relative(Person):
     def desc(self, desc) -> None:
         self._desc.append(desc)
 
+    @property
+    def children(self) -> list[int] | None:
+        """ Returns this persons children list """
+
+        return self._children
+
+    @children.setter
+    def children(self, children: int | list[int]) -> None:
+        self._children.append(children)
+
     # Methods
 
     def __str__(self) -> str:
@@ -278,3 +293,18 @@ class Relative(Person):
         if self.married is True:
             print("Status not changed: already married", file=sys.stderr)
         self.married = status
+
+    def set_mother(self, mother):
+        """ Sets mother relative for this person """
+
+        self.mother = mother
+
+    def set_father(self, father):
+        """ Sets father relative for this person """
+
+        self.father = father
+
+    def set_spouse(self, spouse):
+        """ Sets spouse relative for this person """
+
+        self.spouse_current = spouse

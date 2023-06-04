@@ -16,6 +16,8 @@ class Person(ABC):
         self.place_of_birth = kwargs.get("place_of_birth")
         self.date_of_death = kwargs.get("date_of_death")
         self.place_of_death = kwargs.get("place_of_death")
+        self.phone = kwargs.get("phone")
+        self.email = kwargs.get("email")
 
     @abstractmethod
     def age(self) -> int:
