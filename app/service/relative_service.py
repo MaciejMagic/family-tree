@@ -153,7 +153,7 @@ def relative_mod_attr(person: Relative, info: int, content: str) -> Relative:
     return person
 
 
-def relative_modify(database: sqlite3.Connection, first_name, last_name):
+def relative_modify(database: sqlite3.Connection, first_name, last_name) -> None:
     """
     Modifies an existing person from database
     """

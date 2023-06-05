@@ -1,5 +1,4 @@
 import sqlite3
-import sys
 
 import graphviz
 from app.service.relative_service import relative_select_all
@@ -20,29 +19,25 @@ def generate_node(tree: graphviz.Digraph, person: dict) -> None:
 def generate_tree(database: sqlite3.Connection) -> None:
     """ Generates a svg graph file of a tree from database """
 
-    try:
-        # Initialize graph object
-        tree = graphviz.Digraph(comment="Family Tree")
+    # Initialize graph object
+    tree = graphviz.Digraph(comment="Family Tree")
 
-        # Import list of Relatives (as dicts) from database
-        relatives = relative_select_all(database)
+    # Import list of Relatives (as dicts) from database
+    relatives = relative_select_all(database)
 
-        # Generate first tree node
-        previous_person = relatives[0]
-        generate_node(tree, previous_person)
+    # Generate first tree node
+    previous_person = relatives[0]
+    generate_node(tree, previous_person)
 
-        # Generate the rest of tree nodes
-        for person in relatives[1:]:
-            generate_node(tree, person)
+    # Generate the rest of tree nodes
+    for person in relatives[1:]:
+        generate_node(tree, person)
 
-            # Generate tree edge
-            tree.edge(f"{previous_person['id']}", f"{person['id']}")
+        # Generate tree edge
+        tree.edge(f"{previous_person['id']}", f"{person['id']}")
 
-            previous_person = person
+        previous_person = person
 
-        # Generate output file
-        tree.render("output/tree.gv").replace("\\", "/")
-        tree.render("output/tree.gv", view=True)
-
-    except FileNotFoundError:
-        sys.exit("File not found")
+    # Generate output file
+    tree.render("output/tree.gv").replace("\\", "/")
+    tree.render("output/tree.gv", view=True)

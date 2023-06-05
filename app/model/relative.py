@@ -27,7 +27,7 @@ class Relative(Person):
         # self.generation = 0
         # self.cluster = 0
 
-        # By others self.id from database
+        # Value from others self.id from database
         self.mother = None
         self.father = None
         self.spouse_current = None
@@ -294,17 +294,26 @@ class Relative(Person):
             print("Status not changed: already married", file=sys.stderr)
         self.married = status
 
-    def set_mother(self, mother):
+    def set_mother(self, mother_id) -> None:
         """ Sets mother relative for this person """
 
-        self.mother = mother
+        if int(mother_id):
+            self.mother = mother_id
+        else:
+            raise ValueError("Error setting mother id: not an integer")
 
-    def set_father(self, father):
+    def set_father(self, father_id) -> None:
         """ Sets father relative for this person """
 
-        self.father = father
+        if int(father_id):
+            self.father = father_id
+        else:
+            raise ValueError("Error setting father id: not an integer")
 
-    def set_spouse(self, spouse):
+    def set_spouse(self, spouse) -> None:
         """ Sets spouse relative for this person """
 
-        self.spouse_current = spouse
+        if int(spouse):
+            self.spouse_current = spouse
+        else:
+            raise ValueError("Error setting spouse id: not an integer")

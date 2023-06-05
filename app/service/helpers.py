@@ -16,7 +16,7 @@ def arguments() -> argparse.Namespace:
         '-i',
         '--input',
         help='custom input file with database',
-        default='db/tree.db',
+        default='data/tree.db',
         required='False'
     )
 
