@@ -1,7 +1,7 @@
 import sqlite3
 import sys
 
-from app.model.relative import FEATURES, Relative
+from model.relative import FEATURES, Relative
 from tabulate import tabulate
 
 

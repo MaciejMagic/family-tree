@@ -1,7 +1,7 @@
 import sqlite3
 
 import graphviz
-from app.service.relative_service import relative_select_all
+from service.relative_service import relative_select_all
 
 
 def generate_node(tree: graphviz.Digraph, person: dict) -> None:

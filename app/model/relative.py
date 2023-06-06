@@ -1,7 +1,7 @@
 import sys
 from datetime import date
 
-from app.model.person import Person
+from model.person import Person
 from validator_collection import checkers, validators
 
 FEATURES = ["first_name", "last_name", "gender", "family_name",
