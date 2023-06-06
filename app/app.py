@@ -1,11 +1,11 @@
 import sqlite3
 import sys
 
-from app.service.helpers import arguments, connect_to_db, start
-from app.service.relative_service import (relative_modify, relative_new,
+from service.helpers import arguments, connect_to_db, start
+from service.relative_service import (relative_modify, relative_new,
                                           relative_show_more,
                                           relatives_show_less)
-from app.service.visualize import generate_tree
+from service.visualize import generate_tree
 
 if __name__ == "__main__":
 
