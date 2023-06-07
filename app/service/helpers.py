@@ -10,28 +10,40 @@ def arguments() -> argparse.Namespace:
     """
 
     parser = argparse.ArgumentParser(
-        description="CLI tool for generating a family tree as a svg/pdf graphic")
+        prog='Family Tree',
+        description='Family Tree - a CLI tool for generating a directional graphs',
+        epilog='🌳🌳🌳')
+
+    parser.add_argument(
+        '--version',
+        action='version',
+        version='%(prog)s 0.1',
+    )
 
     parser.add_argument(
         '-i',
         '--input',
+        action='store_const',
         help='custom input file with database',
-        default='data/tree.db',
-        required='False'
+        dest='file_input',
+        metavar='INPUT_FILE',
+        default='../data/tree.db',
     )
 
     parser.add_argument(
         '-o',
         '--output',
-        help='outputs to this file',
+        action='store_const',
+        help='outputs to specified file',
+        dest='file_output',
+        metavar='OUTPUT_FILE',
         default='family_tree.pdf',
-        required='False'
     )
 
     return parser.parse_args()
 
 
-def connect_to_db(database: str = "data/tree.db") -> sqlite3.Connection | None:
+def connect_to_db(database: str = "../data/tree.db") -> sqlite3.Connection | None:
     """
     Establishes a connection to specified SQLite 3 database
     """
@@ -39,8 +51,8 @@ def connect_to_db(database: str = "data/tree.db") -> sqlite3.Connection | None:
     connection = None
     try:
         connection = sqlite3.connect(database)
-    except FileNotFoundError:
-        sys.exit("Databse file not found")
+    except (sqlite3.OperationalError, FileNotFoundError):
+        sys.exit("Error: cannot connect to database")
 
     return connection
 

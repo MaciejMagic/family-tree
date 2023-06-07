@@ -1,7 +1,7 @@
 import sqlite3
 
 import graphviz
-from app.service.relative_service import relative_select_all
+from service.relative_service import relative_select_all
 
 
 def generate_node(tree: graphviz.Digraph, person: dict) -> None:
@@ -26,6 +26,8 @@ def generate_tree(database: sqlite3.Connection) -> None:
     relatives = relative_select_all(database)
 
     # Generate first tree node
+
+    # TODO - fix sqlite Cursor error
     previous_person = relatives[0]
     generate_node(tree, previous_person)
 

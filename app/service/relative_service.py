@@ -1,7 +1,7 @@
 import sqlite3
 import sys
 
-from app.model.relative import FEATURES, Relative
+from model.relative import FEATURES, Relative
 from tabulate import tabulate
 
 
@@ -101,7 +101,7 @@ def relative_load(database: sqlite3.Connection, **kwargs) -> list[Relative] | No
                                       ORDER BY date_of_birth ASC""",
                                    kwargs["first_name"], kwargs["last_name"])
     except sqlite3.Error:
-        print("Loading error with database", file=sys.stderr)
+        print("Error: loading from database", file=sys.stderr)
 
     if results:
         return list(map(lambda match: Relative(**match), results))
@@ -116,7 +116,7 @@ def relative_select_all(database: sqlite3.Connection) -> sqlite3.Cursor | None:
         results = database.execute("""SELECT * FROM family
                                       ORDER BY date_of_birth ASC""")
     except sqlite3.Error:
-        print("Error with loading all entries from database", file=sys.stderr)
+        print("Error: loading all entries from database", file=sys.stderr)
 
     if not results:
         return None
@@ -148,7 +148,7 @@ def relative_mod_attr(person: Relative, info: int, content: str) -> Relative:
         case 9:
             person.desc(content)
         case _:
-            print("Wrong input")
+            print("Error: wrong input for attribute modification")
 
     return person
 
@@ -179,7 +179,7 @@ def relative_modify(database: sqlite3.Connection, first_name, last_name) -> None
 
     # If there are none - exit
     elif relatives_loaded is None:
-        print("No such person in database")
+        print("Error: no such person in database")
         return
     else:
         person_to_edit = relatives_loaded[0]
@@ -276,6 +276,7 @@ def relative_show_more(database: sqlite3.Connection) -> str:
     Retrieve all entries from database.
     Return a multiline string formatted as a table.
     """
+    # TODO - move tabulate to main
 
     return tabulate(relative_select_all(database),
                     headers="keys",
