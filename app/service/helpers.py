@@ -5,8 +5,8 @@ import sys
 
 def arguments() -> argparse.Namespace:
     """
-    Command-line arguments and flag handling.
-    Creates a parser object and returns a namespace of added arguments
+    Command-line arguments and flag handling. Creates a parser object
+    with arguments and returns a parsed namespace.
     """
 
     parser = argparse.ArgumentParser(

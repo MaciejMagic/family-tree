@@ -1,4 +1,3 @@
-import sqlite3
 import sys
 
 from service.helpers import arguments, connect_to_db, start
@@ -11,7 +10,6 @@ if __name__ == "__main__":
 
     args = arguments()
 
-    # try:
     db_connection = connect_to_db()
 
     while True:
@@ -37,7 +35,7 @@ if __name__ == "__main__":
         elif start_option == 3:
             generate_tree(db_connection)
 
-        # 4. Print a list of all relatives
+        # 4. Print a simplified list of all relatives
         elif start_option == 4:
             print(relatives_show_less(db_connection))
 
@@ -51,8 +49,3 @@ if __name__ == "__main__":
 
         else:
             print("Wrong input")
-
-    # except (ValueError, TypeError):
-    #     sys.exit("Input error")
-    # except sqlite3.Error:
-    #     sys.exit("Error with database")
