@@ -10,6 +10,9 @@ if __name__ == "__main__":
 
     args = arguments()
 
+    print(f"🌳 Input file is: {args.file_input}")
+    print(f"🌳 Output file is: {args.file_output}")
+
     db_connection = connect_to_db()
     db_cursor = db_connection.cursor()
 
