@@ -16,7 +16,7 @@ def generate_node(tree: graphviz.Digraph, person: dict) -> None:
     )
 
 
-def generate_tree(database: sqlite3.Connection) -> None:
+def generate_tree(database: sqlite3.Cursor) -> None:
     """ Generates a svg graph file of a tree from database """
 
     # Initialize graph object
@@ -27,7 +27,6 @@ def generate_tree(database: sqlite3.Connection) -> None:
 
     # Generate first tree node
 
-    # TODO - fix sqlite Cursor error
     previous_person = relatives[0]
     generate_node(tree, previous_person)
 

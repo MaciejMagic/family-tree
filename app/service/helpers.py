@@ -43,14 +43,14 @@ def arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def connect_to_db(database: str = "../data/tree.db") -> sqlite3.Connection | None:
+def connect_to_db(database_file: str = "../data/tree.db") -> sqlite3.Connection | None:
     """
     Establishes a connection to specified SQLite 3 database
     """
 
     connection = None
     try:
-        connection = sqlite3.connect(database)
+        connection = sqlite3.connect(database_file)
     except (sqlite3.OperationalError, FileNotFoundError):
         sys.exit("Error: cannot connect to database")
 

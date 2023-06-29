@@ -11,6 +11,7 @@ if __name__ == "__main__":
     args = arguments()
 
     db_connection = connect_to_db()
+    db_cursor = db_connection.cursor()
 
     while True:
         start_option = start()
@@ -18,7 +19,7 @@ if __name__ == "__main__":
         # 1. Add new person to database
         if start_option == 1:
             while True:
-                relative_new(db_connection)
+                relative_new(db_cursor)
                 another = input("Add another? [Y/N] ").strip().lower()
                 if another == "y":
                     pass
@@ -29,23 +30,25 @@ if __name__ == "__main__":
         elif start_option == 2:
             first_name = input("Search for first name: ").strip()
             last_name = input("Search for last name: ").strip()
-            relative_modify(db_connection, first_name, last_name)
+            relative_modify(db_cursor, first_name, last_name)
 
         # 3. Generate tree
         elif start_option == 3:
-            generate_tree(db_connection)
+            generate_tree(db_cursor)
 
         # 4. Print a simplified list of all relatives
         elif start_option == 4:
-            print(relatives_show_less(db_connection))
+            print(relatives_show_less(db_cursor))
 
         # 5. Print a detailed list of all relatives
         elif start_option == 5:
-            print(relative_show_more(db_connection))
+            print(relative_show_more(db_cursor))
 
         # 6. Exit
         elif start_option == 6:
+            db_connection.close()
             sys.exit()
 
         else:
-            print("Wrong input")
+            db_connection.close()
+            sys.exit("Wrong input")
