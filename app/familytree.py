@@ -23,7 +23,9 @@ if __name__ == "__main__":
         if start_option == 1:
             while True:
                 relative_new(db_cursor)
-                another = input("Add another? [Y/N] ").strip().lower()
+                another = input("Add another? [Y/N] ") \
+                    .strip() \
+                    .lower()
                 if another == "y":
                     pass
                 else:

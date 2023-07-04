@@ -37,8 +37,9 @@ def relative_new(database: sqlite3.Cursor) -> Relative | None:
                 print("Input value error")
                 setattr(relative_new_person, feature, None)
 
-        answer = input(
-            "Is the provided information correct? [Y/N] ").strip().lower()
+        answer = input("Is the provided information correct? [Y/N] ") \
+            .strip() \
+            .lower()
         if answer == "y":
             result = relative_new_save(relative_new_person, database)
             if result in [1, 2, 3]:
@@ -72,8 +73,9 @@ def relative_new_save(person: Relative, database: sqlite3.Cursor) -> int:
             print("- id:", match['id'], ", ", match['first_name'], " ",
                   match['last_name'], ", born ", match['date_of_birth'])
 
-        answer = input(
-            "Add new person with the same credentials? [Y/N] ").strip().lower()
+        answer = input("Add new person with the same credentials? [Y/N] ") \
+            .strip() \
+            .lower()
         if answer == "y":
             pass
         else:
@@ -275,10 +277,15 @@ def relatives_show_less(database: sqlite3.Cursor) -> str | None:
     results = relative_select_all(database)
 
     if results:
-        return str([(person["first_name"] + " " + person["last_name"] + " ("
-                     + person["date_of_birth"] +
-                     " - " + person["date_of_death"]
-                     + ")" + "\n") for person in results])
+        return str([(person["first_name"]
+                     + " "
+                     + person["last_name"]
+                     + " ("
+                     + person["date_of_birth"]
+                     + " - "
+                     + person["date_of_death"]
+                     + ")"
+                     + "\n") for person in results])
     return None
 
 

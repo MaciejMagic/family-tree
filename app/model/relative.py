@@ -4,10 +4,23 @@ from datetime import date
 from model.person import Person
 from validator_collection import checkers, validators
 
-FEATURES = ["first_name", "last_name", "gender", "family_name",
-            "date_of_birth", "place_of_birth", "date_of_death", "place_of_death",
-            "mother", "father", "married", "spouse_current", "children",
-            "phone", "email", "events", "desc"]
+FEATURES = ["first_name",
+            "last_name",
+            "gender",
+            "family_name",
+            "date_of_birth",
+            "place_of_birth",
+            "date_of_death",
+            "place_of_death",
+            "mother",
+            "father",
+            "married",
+            "spouse_current",
+            "children",
+            "phone",
+            "email",
+            "events",
+            "desc"]
 
 
 class Relative(Person):
@@ -281,10 +294,10 @@ class Relative(Person):
 
         summary = """\n"""
 
-        for prop_main in FEATURES:
-            for prop_instance in properties:
-                if (prop_main == prop_instance) and getattr(self, prop_instance):
-                    summary += (f"{prop_instance}: {getattr(self, prop_instance)}" + "\n")
+        for feature_main in FEATURES:
+            for feature_instance in properties:
+                if (feature_main == feature_instance) and getattr(self, feature_instance):
+                    summary += (f"{feature_instance}: {getattr(self, feature_instance)}" + "\n")
         return summary
 
     def marry(self, status: bool = True) -> None:

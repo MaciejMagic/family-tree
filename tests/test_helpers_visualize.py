@@ -1,8 +1,8 @@
 import unittest
 
 import pytest
-from app.helpers import connect_to_db
-from app.visualize import generate_tree
+from app.service.helpers import connect_to_db
+from app.service.visualize import generate_tree
 
 
 def test_connect_to_db():
