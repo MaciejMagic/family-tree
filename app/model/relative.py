@@ -26,7 +26,7 @@ FEATURES = ["first_name",
 class Relative(Person):
     """
     Main app class for data storage and
-    transitions: database <-> graph generation input
+    transitions: database <-> graph generation.
     """
 
     def __init__(self, **kwargs) -> None:
@@ -37,10 +37,10 @@ class Relative(Person):
         self._desc = []
         self.desc = kwargs.get("desc")
         self.married: bool = False
-        # self.generation = 0
-        # self.cluster = 0
+        self.generation = 0
+        self.cluster = 0
 
-        # Value from others self.id from database
+        # Value from other Persons self.id
         self.mother = None
         self.father = None
         self.spouse_current = None
