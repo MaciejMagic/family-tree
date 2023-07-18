@@ -1,18 +1,9 @@
 import sqlite3
 import sys
+from pathlib import Path
 
 from model.relative import FEATURES, Relative
 from tabulate import tabulate
-
-SQL_INSERT = """INSERT INTO family
-                (first_name, last_name, gender, family_name, date_of_birth,
-                place_of_birth, date_of_death, place_of_death, phone, email,
-                events, desc, spouse, children)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
-
-SQL_SELECT = """SELECT * FROM family
-                WHERE first_name = ? AND last_name = ?
-                ORDER BY date_of_birth ASC"""
 
 SQL_SELECT_ALL = """SELECT * FROM family
                     ORDER BY date_of_birth ASC"""
@@ -20,12 +11,16 @@ SQL_SELECT_ALL = """SELECT * FROM family
 SQL_DELETE = "DELETE FROM family WHERE id = ?"
 
 
+def read_sql_query(sql_path: Path) -> str:
+    """Returns path to an SQL file as a string"""
+    return Path(sql_path).read_text(encoding="UTF-8")
+
+
 def relative_new(cursor: sqlite3.Cursor) -> Relative | None:
     """
     Collects input for each attribute from user.
     Creates and returns a new Relative object.
     """
-
     try:
         print("Provide info for a new person: ('Enter' to skip)")
         relative_new_person = Relative()
@@ -61,7 +56,6 @@ def relative_new_save(person: Relative, cursor: sqlite3.Cursor) -> int:
     """
     Persists a Relative object as a row in database.
     """
-
     matches = relative_load(cursor, first_name=person.first_name,
                             last_name=person.last_name)
 
@@ -83,7 +77,8 @@ def relative_new_save(person: Relative, cursor: sqlite3.Cursor) -> int:
             return 1
 
     try:
-        insert = cursor.execute(SQL_INSERT,
+        sql_query = read_sql_query("sql/insert.sql")
+        insert = cursor.execute(sql_query,
                                 (person.first_name,
                                  person.last_name,
                                  person.gender,
@@ -114,9 +109,9 @@ def relative_load(cursor: sqlite3.Cursor, **kwargs) -> list[Relative] | None:
     Returns a list of Relative objects specified by first_name
     and last_name keywords, loaded from database.
     """
-
     try:
-        results = cursor.execute(SQL_SELECT,
+        sql_query = read_sql_query("sql/select.sql")
+        results = cursor.execute(sql_query,
                                  (kwargs["first_name"],
                                   kwargs["last_name"])).fetchall()
     except sqlite3.Error:
@@ -124,15 +119,14 @@ def relative_load(cursor: sqlite3.Cursor, **kwargs) -> list[Relative] | None:
 
     if results:
         return list(map(lambda match: Relative(**match), results))
-
     return None
 
 
 def relative_select_all(cursor: sqlite3.Cursor) -> list[dict] | None:
     """ Selects all rows in database. Returns a list of dictionaries """
-
     try:
-        results = cursor.execute(SQL_SELECT_ALL).fetchall()
+        sql_query = read_sql_query("sql/select_all.sql")
+        results = cursor.execute(sql_query).fetchall()
     except sqlite3.Error:
         print("Error: loading all entries from database", file=sys.stderr)
 
@@ -145,7 +139,6 @@ def relative_mod_attr(person: Relative, info: int, content: str) -> Relative:
     """
     Modifies an attribute in a Relative object.
     """
-
     match info:
         case 1:
             person.family_name(content)
@@ -167,7 +160,6 @@ def relative_mod_attr(person: Relative, info: int, content: str) -> Relative:
             person.desc(content)
         case _:
             print("Error: wrong input for attribute modification")
-
     return person
 
 
@@ -194,7 +186,7 @@ def relative_modify(cursor: sqlite3.Cursor, first_name: str, last_name: str) -> 
 
         person_to_edit = relatives_loaded[int(person_choice) - 1]
 
-    # If there are none - exit
+    # If there are none -> exit
     elif relatives_loaded is None:
         print("Error: no such person in database")
         return
@@ -231,14 +223,13 @@ def relative_update(cursor: sqlite3.Cursor, person: Relative) -> None:
     """
     Updates existing row in database through data from a Relative object.
     """
-
     for feature in FEATURES:
         value = getattr(person, feature)
 
-        update_sql = f"UPDATE family SET {feature} = {value} WHERE id = ?"
+        sql_query = read_sql_query("sql/update.sql")
 
         try:
-            cursor.execute(update_sql, (person.id,))
+            cursor.execute(sql_query, (feature, value, person.id))
             cursor.connection.commit()
         except sqlite3.Error:
             print("Error: updating to database", file=sys.stderr)
@@ -252,12 +243,12 @@ def relative_delete(cursor: sqlite3.Cursor, person: Relative) -> None:
     """
     Removes an existing person from database.
     """
-
     try:
         if person.id is None:
             print("Error: deletion unsuccessful - no object ID")
             return
-        delete = cursor.execute(SQL_DELETE, (person.id,))
+        sql_query = read_sql_query("sql/delete.sql")
+        delete = cursor.execute(sql_query, (person.id,))
         cursor.connection.commit()
     except sqlite3.Error:
         print("Deletion error with database", file=sys.stderr)
@@ -273,7 +264,6 @@ def relatives_show_less(cursor: sqlite3.Cursor) -> str | None:
     """
     Retrieves all entries from database and prints basic info.
     """
-
     results = relative_select_all(cursor)
 
     if results:
@@ -294,7 +284,6 @@ def relative_show_more(cursor: sqlite3.Cursor) -> str:
     Retrieves all entries from database.
     Returns a multiline string formatted as a table.
     """
-
     return tabulate(relative_select_all(cursor),
                     headers="keys",
                     tablefmt="mixed_grid",

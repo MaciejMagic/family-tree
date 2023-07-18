@@ -8,7 +8,6 @@ def arguments() -> argparse.Namespace:
     Command-line arguments and flag handling. Creates a parser object
     with arguments and returns a parsed namespace.
     """
-
     parser = argparse.ArgumentParser(
         prog='Family Tree',
         description='Family Tree - a CLI tool for generating a directional graphs',
@@ -47,7 +46,6 @@ def connect_to_db(database_file: str = "../data/tree.db") -> sqlite3.Connection 
     """
     Establishes a connection to specified SQLite 3 database
     """
-
     connection = None
     try:
         connection = sqlite3.connect(database_file)
@@ -59,7 +57,6 @@ def connect_to_db(database_file: str = "../data/tree.db") -> sqlite3.Connection 
 
 def start() -> int | None:
     """ Starting options for the program """
-
     try:
         option = input("""🌳 Welcome to Family Tree 🌳
 
