@@ -26,7 +26,7 @@ def arguments() -> argparse.Namespace:
         help='custom input file with database',
         dest='file_input',
         metavar='INPUT_FILE',
-        default='../data/tree.db',
+        default='../database/tree.db',
     )
 
     parser.add_argument(
@@ -42,7 +42,7 @@ def arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def connect_to_db(database_file: str = "../data/tree.db") -> sqlite3.Connection | None:
+def connect_to_db(database_file: str = "../database/tree.db") -> sqlite3.Connection | None:
     """
     Establishes a connection to specified SQLite 3 database
     """

@@ -5,11 +5,6 @@ from pathlib import Path
 from model.relative import FEATURES, Relative
 from tabulate import tabulate
 
-SQL_SELECT_ALL = """SELECT * FROM family
-                    ORDER BY date_of_birth ASC"""
-
-SQL_DELETE = "DELETE FROM family WHERE id = ?"
-
 
 def read_sql_query(sql_path: Path) -> str:
     """Returns path to an SQL file as a string"""
@@ -77,7 +72,7 @@ def relative_new_save(person: Relative, cursor: sqlite3.Cursor) -> int:
             return 1
 
     try:
-        sql_query = read_sql_query("sql/insert.sql")
+        sql_query = read_sql_query("../sql/insert.sql")
         insert = cursor.execute(sql_query,
                                 (person.first_name,
                                  person.last_name,
@@ -110,7 +105,7 @@ def relative_load(cursor: sqlite3.Cursor, **kwargs) -> list[Relative] | None:
     and last_name keywords, loaded from database.
     """
     try:
-        sql_query = read_sql_query("sql/select.sql")
+        sql_query = read_sql_query("../sql/select.sql")
         results = cursor.execute(sql_query,
                                  (kwargs["first_name"],
                                   kwargs["last_name"])).fetchall()
@@ -125,7 +120,7 @@ def relative_load(cursor: sqlite3.Cursor, **kwargs) -> list[Relative] | None:
 def relative_select_all(cursor: sqlite3.Cursor) -> list[dict] | None:
     """ Selects all rows in database. Returns a list of dictionaries """
     try:
-        sql_query = read_sql_query("sql/select_all.sql")
+        sql_query = read_sql_query("../sql/select_all.sql")
         results = cursor.execute(sql_query).fetchall()
     except sqlite3.Error:
         print("Error: loading all entries from database", file=sys.stderr)
@@ -226,7 +221,7 @@ def relative_update(cursor: sqlite3.Cursor, person: Relative) -> None:
     for feature in FEATURES:
         value = getattr(person, feature)
 
-        sql_query = read_sql_query("sql/update.sql")
+        sql_query = read_sql_query("../sql/update.sql")
 
         try:
             cursor.execute(sql_query, (feature, value, person.id))
@@ -247,7 +242,7 @@ def relative_delete(cursor: sqlite3.Cursor, person: Relative) -> None:
         if person.id is None:
             print("Error: deletion unsuccessful - no object ID")
             return
-        sql_query = read_sql_query("sql/delete.sql")
+        sql_query = read_sql_query("../sql/delete.sql")
         delete = cursor.execute(sql_query, (person.id,))
         cursor.connection.commit()
     except sqlite3.Error:
@@ -284,6 +279,8 @@ def relative_show_more(cursor: sqlite3.Cursor) -> str:
     Retrieves all entries from database.
     Returns a multiline string formatted as a table.
     """
+
+    # TO DO - option '5' returns an IndexError with tabulate
     return tabulate(relative_select_all(cursor),
                     headers="keys",
                     tablefmt="mixed_grid",
