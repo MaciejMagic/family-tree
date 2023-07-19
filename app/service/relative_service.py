@@ -202,8 +202,13 @@ def relative_modify(cursor: sqlite3.Cursor, relatives: list[Relative]) -> str:
     """
     person_to_edit = relative_find(relatives)
 
-    # Ask which info to edit
-    info_to_edit = int(input("""Which info to add / edit:
+    if person_to_edit is None:
+        return "Error: no relative to edit"
+
+    while True:
+        try:
+            # Ask which info to edit
+            info_to_edit = int(input("""📄 Which info to add / edit:
 1. Family name
 2. Date of birth
 3. Place of birth
@@ -214,14 +219,23 @@ def relative_modify(cursor: sqlite3.Cursor, relatives: list[Relative]) -> str:
 8. Events
 9. Description
 Proceed with: """).strip())
+            break
+        except (TypeError, ValueError):
+            print("Wrong input. Try again.")
 
     # Ask with what new content to edit
     new_content = input("Enter new info: ").strip()
 
-    person_edited = relative_modify_attr(
-        person_to_edit, info_to_edit, new_content)
+    if new_content is None or new_content == "":
+        return "Error: no new content provided"
 
-    # Save person row to database with modified info
+    person_edited = relative_modify_attr(
+        person_to_edit,
+        info_to_edit,
+        new_content
+    )
+
+    # Save updated person (row) to database
     relative_update(cursor, person_edited)
 
     return ("Modified info (" + person_to_edit.first_name +

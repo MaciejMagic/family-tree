@@ -41,8 +41,13 @@ if __name__ == "__main__":
 
             # Search for list of matches
             relatives_loaded = relative_load(
-                db_cursor, first_name=first_name, last_name=last_name)
-
+                db_cursor,
+                first_name=first_name,
+                last_name=last_name
+            )
+            if relatives_loaded is None:
+                print("Error: no relatives loaded")
+                continue
             print(relative_modify(db_cursor, relatives_loaded))
 
         # 3. Generate tree
