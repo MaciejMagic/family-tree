@@ -1,9 +1,8 @@
 import sys
 
 from service.helpers import arguments, connect_to_db, start
-from service.relative_service import (relative_modify, relative_new,
-                                      relative_show_more,
-                                      relatives_show_less)
+from service.relative_service import (relative_create, relative_load,
+                                      relative_modify, relatives_show)
 from service.visualize import generate_tree
 
 if __name__ == "__main__":
@@ -22,7 +21,7 @@ if __name__ == "__main__":
         # 1. Add new person to database
         if start_option == 1:
             while True:
-                relative_new(db_cursor)
+                relative_create(db_cursor)
                 another = input("Add another? [Y/N] ") \
                     .strip() \
                     .lower()
@@ -33,9 +32,18 @@ if __name__ == "__main__":
 
         # 2. Modify existing person in database
         elif start_option == 2:
-            first_name = input("Search for first name: ").strip()
-            last_name = input("Search for last name: ").strip()
-            relative_modify(db_cursor, first_name, last_name)
+            first_name = input("Search for a person with first name: ") \
+                .strip() \
+                .capitalize()
+            last_name = input("Search for a person with last name: ") \
+                .strip() \
+                .capitalize()
+
+            # Search for list of matches
+            relatives_loaded = relative_load(
+                db_cursor, first_name=first_name, last_name=last_name)
+
+            print(relative_modify(db_cursor, relatives_loaded))
 
         # 3. Generate tree
         elif start_option == 3:
@@ -43,11 +51,11 @@ if __name__ == "__main__":
 
         # 4. Print a simplified list of all relatives
         elif start_option == 4:
-            print(relatives_show_less(db_cursor))
+            print(relatives_show(db_cursor))
 
         # 5. Print a detailed list of all relatives
         elif start_option == 5:
-            print(relative_show_more(db_cursor))
+            print(relatives_show(db_cursor, show_all=True))
 
         # 6. Exit
         elif start_option == 6:

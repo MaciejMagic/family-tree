@@ -6,7 +6,7 @@ import sys
 def arguments() -> argparse.Namespace:
     """
     Command-line arguments and flag handling. Creates a parser object
-    with arguments and returns a parsed namespace.
+    with arguments and returns a parsed namespace object.
     """
     parser = argparse.ArgumentParser(
         prog='Family Tree',
@@ -44,7 +44,8 @@ def arguments() -> argparse.Namespace:
 
 def connect_to_db(database_file: str = "../database/tree.db") -> sqlite3.Connection | None:
     """
-    Establishes a connection to specified SQLite 3 database
+    Establishes a connection to specified SQLite 3 database.
+    Returns a connection object.
     """
     connection = None
     try:
@@ -57,9 +58,11 @@ def connect_to_db(database_file: str = "../database/tree.db") -> sqlite3.Connect
 
 def start() -> int | None:
     """ Starting options for the program """
-    try:
-        option = input("""🌳 Welcome to Family Tree 🌳
 
+    start_usage = "Usage: type a number 1 - 6 and hit ENTER"
+
+    try:
+        option = int(input("""\n🌳 Welcome to Family Tree 🌳\n
     Available options:
         1. Add new relative
         2. Modify info about existing relative
@@ -67,16 +70,16 @@ def start() -> int | None:
         4. List all relatives (less detailed)
         5. List all relatives (more detailed)
         6. Exit
-    Proceed with: """).strip()
+    Proceed with: """).strip())
 
-        if int(option) not in [1, 2, 3, 4, 5, 6]:
+        if option not in [1, 2, 3, 4, 5, 6]:
             print("Wrong input", file=sys.stderr)
-            print("Usage: type a number between 1 - 6, followed by ENTER")
+            print(start_usage)
             return None
 
     except TypeError:
         print("Wrong option", file=sys.stderr)
-        print("Usage: type a number between 1 - 6, followed by ENTER")
+        print(start_usage)
         return None
 
-    return int(option)
+    return option

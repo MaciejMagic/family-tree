@@ -25,8 +25,8 @@ FEATURES = ["first_name",
 
 class Relative(Person):
     """
-    Main app class for data storage and
-    transitions: database <-> graph generation.
+    Main app class for people objects.
+    Data storage and transitions: database <-> graph generation.
     """
 
     def __init__(self, **kwargs) -> None:
@@ -52,7 +52,6 @@ class Relative(Person):
     @property
     def first_name(self) -> str:
         """ Returns objects first name """
-
         return self._first_name
 
     @first_name.setter
@@ -70,7 +69,6 @@ class Relative(Person):
     @property
     def last_name(self) -> str:
         """ Returns objects last name """
-
         return self._last_name
 
     @last_name.setter
@@ -88,7 +86,6 @@ class Relative(Person):
     @property
     def gender(self) -> str:
         """ Returns person gender """
-
         return self._gender
 
     @gender.setter
@@ -100,7 +97,6 @@ class Relative(Person):
     @property
     def family_name(self) -> str | None:
         """ Returns objects family last name """
-
         return self._family_name
 
     @family_name.setter
@@ -118,7 +114,6 @@ class Relative(Person):
     @property
     def date_of_birth(self) -> str | None:
         """ Returns this persons birthday """
-
         return repr(self._date_of_birth)
 
     @date_of_birth.setter
@@ -135,7 +130,6 @@ class Relative(Person):
     @property
     def place_of_birth(self) -> str | None:
         """ Returns this persons place of birth """
-
         return self._place_of_birth
 
     @place_of_birth.setter
@@ -153,7 +147,6 @@ class Relative(Person):
     @property
     def date_of_death(self) -> str | None:
         """ Returns this persons date of death """
-
         return repr(self._date_of_death)
 
     @date_of_death.setter
@@ -170,7 +163,6 @@ class Relative(Person):
     @property
     def place_of_death(self) -> str | None:
         """ Returns this persons place of death """
-
         return self._place_of_death
 
     @place_of_death.setter
@@ -188,7 +180,6 @@ class Relative(Person):
     @property
     def phone(self) -> str | None:
         """ Returns this persons phone number """
-
         return self._phone
 
     @phone.setter
@@ -204,7 +195,6 @@ class Relative(Person):
     @property
     def email(self) -> str | None:
         """ Returns this persons email address """
-
         return self._email
 
     @email.setter
@@ -220,7 +210,6 @@ class Relative(Person):
     @property
     def events(self) -> list[str] | None:
         """ Returns this persons saved events """
-
         if not self._events:
             print("Events are empty")
             return None
@@ -233,7 +222,6 @@ class Relative(Person):
     @property
     def desc(self) -> list[str] | None:
         """ Returns this persons description """
-
         if not self._desc:
             print("Description is empty")
             return None
@@ -246,7 +234,6 @@ class Relative(Person):
     @property
     def children(self) -> list[int] | None:
         """ Returns this persons children list """
-
         return self._children
 
     @children.setter
@@ -267,7 +254,6 @@ class Relative(Person):
         """
         Returns person age based on current date or years lived if deceased
         """
-
         if self._date_of_death is None:
             age_delta = date.today() - self._date_of_birth
         else:
@@ -276,19 +262,16 @@ class Relative(Person):
 
     def event_add(self, event: str) -> None:
         """ Add new event to persons bio """
-
         self._events.append(event)
 
     def desc_add(self, desc: str) -> None:
         """ Add new description to persons bio """
-
         self._desc.append(desc)
 
     def info(self) -> str:
         """
         Returns all availible info about this person in a multiline string
         """
-
         properties = [attribute for attribute in dir(self) if not attribute.startswith(
             '_') and not callable(getattr(self, attribute))]
 
@@ -302,14 +285,12 @@ class Relative(Person):
 
     def marry(self, status: bool = True) -> None:
         """ Change married status for this person """
-
         if self.married is True:
             print("Status not changed: already married", file=sys.stderr)
         self.married = status
 
     def set_mother(self, mother_id) -> None:
         """ Sets mother relative for this person """
-
         if int(mother_id):
             self.mother = mother_id
         else:
@@ -317,7 +298,6 @@ class Relative(Person):
 
     def set_father(self, father_id) -> None:
         """ Sets father relative for this person """
-
         if int(father_id):
             self.father = father_id
         else:
@@ -325,7 +305,6 @@ class Relative(Person):
 
     def set_spouse(self, spouse) -> None:
         """ Sets spouse relative for this person """
-
         if int(spouse):
             self.spouse_current = spouse
         else:

@@ -2,9 +2,9 @@ import unittest
 
 import pytest
 from app.service.relative_service import (relative_delete, relative_load,
-                                          relative_mod_attr, relative_new,
-                                          relative_new_save, relative_update,
-                                          relatives_show_less)
+                                          relative_modify_attr, relative_create,
+                                          relative_save, relative_update,
+                                          relatives_show)
 
 
 def test_relative_new():

@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 class Person(ABC):
     """
     Abstract helper class for inheritance
-    and method implementation enforcement
+    and method implementation enforcement.
     """
 
     def __init__(self, **kwargs) -> None:
