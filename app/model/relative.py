@@ -1,10 +1,10 @@
 import sys
 from datetime import date
 
-from model.person import Person
+from model.person import FamilyData, Person, PersonData
 from validator_collection import checkers, validators
 
-FEATURES = ["first_name",
+FEATURES = ("first_name",
             "last_name",
             "gender",
             "family_name",
@@ -20,10 +20,10 @@ FEATURES = ["first_name",
             "phone",
             "email",
             "events",
-            "desc"]
+            "desc")
 
 
-class Relative(Person):
+class FamilyRelative(Person):
     """
     Main app class for people objects.
     Data storage and transitions: database <-> graph generation.
@@ -31,21 +31,32 @@ class Relative(Person):
 
     def __init__(self, **kwargs) -> None:
         super().__init__()
-        self.id = None
-        self._events = []
-        self.events = kwargs.get("events")
-        self._desc = []
-        self.desc = kwargs.get("desc")
-        self.married: bool = False
-        self.generation = 0
-        self.cluster = 0
+        self._id: int = None
+        self.person_data: PersonData = PersonData(
+            family_name=kwargs.get("family_name"),
+            phone=kwargs.get("phone"),
+            email=kwargs.get("email"),
+            events=kwargs.get("events"),
+            desc=kwargs.get("desc")
+        )
+        self.family_data: FamilyData = FamilyData(
+            mother=kwargs.get("mother"),
+            father=kwargs.get("father"),
+            spouse_current=kwargs.get("spouse_current"),
+            children=kwargs.get("children"),
+            married=kwargs.get("married")
+        )
 
-        # Value from other Persons self.id
-        self.mother = None
-        self.father = None
-        self.spouse_current = None
-        self._children = []
-        self.children = None
+        self.generation: int = 0
+        self.cluster: int = 0
+
+    def __str__(self) -> str:
+        if self._date_of_death is None:
+            return f"{self._first_name} {self._last_name} ({self._date_of_birth} - )"
+
+        name = (self._first_name + ' ' + self._last_name +
+                ', (' + self._date_of_birth + ' - ' + self._date_of_death + ')')
+        return str(name)
 
     # Properties
 
@@ -242,14 +253,6 @@ class Relative(Person):
 
     # Methods
 
-    def __str__(self) -> str:
-        if self._date_of_death is None:
-            return f"{self._first_name} {self._last_name} ({self._date_of_birth} - )"
-        else:
-            name = (self._first_name + ' ' + self._last_name +
-                    ', (' + self._date_of_birth + ' - ' + self._date_of_death + ')')
-            return str(name)
-
     def age(self) -> int:
         """
         Returns person age based on current date or years lived if deceased
@@ -259,14 +262,6 @@ class Relative(Person):
         else:
             age_delta = self._date_of_death - self._date_of_birth
         return int(age_delta["years"])
-
-    def event_add(self, event: str) -> None:
-        """ Add new event to persons bio """
-        self._events.append(event)
-
-    def desc_add(self, desc: str) -> None:
-        """ Add new description to persons bio """
-        self._desc.append(desc)
 
     def info(self) -> str:
         """
@@ -282,6 +277,14 @@ class Relative(Person):
                 if (feature_main == feature_instance) and getattr(self, feature_instance):
                     summary += (f"{feature_instance}: {getattr(self, feature_instance)}" + "\n")
         return summary
+
+    def event_add(self, event: str) -> None:
+        """ Add new event to persons bio """
+        self._events.append(event)
+
+    def desc_add(self, desc: str) -> None:
+        """ Add new description to persons bio """
+        self._desc.append(desc)
 
     def marry(self, status: bool = True) -> None:
         """ Change married status for this person """

@@ -2,7 +2,7 @@ import sqlite3
 import sys
 from pathlib import Path
 
-from model.relative import FEATURES, Relative
+from model.relative import FEATURES, FamilyRelative
 from tabulate import tabulate
 
 
@@ -11,14 +11,14 @@ def read_sql_query(sql_path: Path) -> str:
     return Path(sql_path).read_text(encoding="UTF-8")
 
 
-def relative_create(cursor: sqlite3.Cursor) -> Relative | None:
+def relative_create(cursor: sqlite3.Cursor) -> FamilyRelative | None:
     """
     Collects input for each attribute from user.
     Creates and returns a new Relative object.
     """
     try:
         print("Provide info for a new person: ('Enter' to skip)")
-        relative_new_person = Relative()
+        relative_new_person = FamilyRelative()
         for feature in FEATURES:
             feature_value = input(f"{feature.replace('_', ' ').title()}: ")
             try:
@@ -46,7 +46,7 @@ def relative_create(cursor: sqlite3.Cursor) -> Relative | None:
         return None
 
 
-def relative_save(person: Relative, cursor: sqlite3.Cursor) -> int:
+def relative_save(person: FamilyRelative, cursor: sqlite3.Cursor) -> int:
     """
     Persists a Relative object as a row in database.
     """
@@ -98,7 +98,7 @@ def relative_save(person: Relative, cursor: sqlite3.Cursor) -> int:
     return 0
 
 
-def relative_load(cursor: sqlite3.Cursor, **kwargs) -> list[Relative] | None:
+def relative_load(cursor: sqlite3.Cursor, **kwargs) -> list[FamilyRelative] | None:
     """
     Returns a list of Relative objects specified by first_name
     and last_name keywords, loaded from database.
@@ -112,7 +112,7 @@ def relative_load(cursor: sqlite3.Cursor, **kwargs) -> list[Relative] | None:
         print("Error: loading from database", file=sys.stderr)
 
     if results:
-        return list(map(lambda match: Relative(**match), results))
+        return list(map(lambda match: FamilyRelative(**match), results))
     return None
 
 
@@ -129,7 +129,7 @@ def relative_select_all(cursor: sqlite3.Cursor) -> list[dict] | None:
     return None
 
 
-def relative_modify_attr(person: Relative, info: int, content: str) -> Relative:
+def relative_modify_attr(person: FamilyRelative, info: int, content: str) -> FamilyRelative:
     """
     Modifies an attribute in a Relative object.
     """
@@ -157,7 +157,7 @@ def relative_modify_attr(person: Relative, info: int, content: str) -> Relative:
     return person
 
 
-def relative_find(relatives: list[Relative]) -> Relative | None:
+def relative_find(relatives: list[FamilyRelative]) -> FamilyRelative | None:
     """
     Takes a list of Relative objects as an argument, asks for user input
     and returns a single Relative object or None.
@@ -194,7 +194,7 @@ def relative_find(relatives: list[Relative]) -> Relative | None:
     return person_to_edit
 
 
-def relative_modify(cursor: sqlite3.Cursor, relatives: list[Relative]) -> str:
+def relative_modify(cursor: sqlite3.Cursor, relatives: list[FamilyRelative]) -> str:
     """
     Modifies an existing person in database. Requires a cursor object
     and a list of Relative objects. Collects user input for modification.
@@ -242,7 +242,7 @@ Proceed with: """).strip())
             " " + person_to_edit.last_name + ") saved successfully\n")
 
 
-def relative_update(cursor: sqlite3.Cursor, person: Relative) -> None:
+def relative_update(cursor: sqlite3.Cursor, person: FamilyRelative) -> None:
     """
     Updates existing row in database through data from a Relative object.
     """
@@ -262,7 +262,7 @@ def relative_update(cursor: sqlite3.Cursor, person: Relative) -> None:
         print(f"{feature.replace('_', ' ').title()} updated successfully.")
 
 
-def relative_delete(cursor: sqlite3.Cursor, person: Relative) -> None:
+def relative_delete(cursor: sqlite3.Cursor, person: FamilyRelative) -> None:
     """
     Removes an existing person from database.
     """
