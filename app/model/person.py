@@ -35,7 +35,7 @@ class PersonData:
     """
     Helper class for Relatives personal data
     """
-    family_name: str = None
+    second_name: str = None
     phone: str = None
     email: str = None
     events: list[str] = field(default_factory=list)
@@ -47,13 +47,14 @@ class FamilyData:
     """
     Helper class for Relatives family data
     """
+    family_name: str = None
+    married: bool = False
+
     # Values from other Persons self.id column
     mother: int = None
     father: int = None
     spouse_current: int = None
     children: list[int] = field(default_factory=list)
-
-    married: bool = False
 
     def __post_init__(self) -> None:
         if self.spouse_current is not None:

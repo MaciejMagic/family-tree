@@ -5,6 +5,7 @@ from model.person import FamilyData, Person, PersonData
 from validator_collection import checkers, validators
 
 FEATURES = ("first_name",
+            "second_name",
             "last_name",
             "gender",
             "family_name",
@@ -33,13 +34,14 @@ class FamilyRelative(Person):
         super().__init__()
         self._id: int = None
         self.person_data: PersonData = PersonData(
-            family_name=kwargs.get("family_name"),
+            second_name=kwargs.get("second_name"),
             phone=kwargs.get("phone"),
             email=kwargs.get("email"),
             events=kwargs.get("events"),
             desc=kwargs.get("desc")
         )
         self.family_data: FamilyData = FamilyData(
+            family_name=kwargs.get("family_name"),
             mother=kwargs.get("mother"),
             father=kwargs.get("father"),
             spouse_current=kwargs.get("spouse_current"),
