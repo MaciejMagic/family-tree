@@ -24,7 +24,7 @@ def relative_create(cursor: sqlite3.Cursor) -> FamilyRelative | None:
             try:
                 setattr(relative_new_person, feature, feature_value)
             except ValueError:
-                print("Input value error")
+                print("Error > Creating new relative > Input value error")
                 setattr(relative_new_person, feature, None)
 
         answer = input("Is the provided information correct? [Y/N] ") \
@@ -33,7 +33,7 @@ def relative_create(cursor: sqlite3.Cursor) -> FamilyRelative | None:
         if answer == "y":
             result = relative_save(relative_new_person, cursor)
             if result in [1, 2, 3]:
-                print("Adding new person unsuccessful")
+                print("Error > Adding new person unsuccessful")
                 return None
             print("New relative (" + relative_new_person.first_name +
                   " " + relative_new_person.last_name + ") saved")
@@ -42,7 +42,7 @@ def relative_create(cursor: sqlite3.Cursor) -> FamilyRelative | None:
         return None
 
     except AttributeError:
-        print("Attribute value error. Info discarded")
+        print("Error > Creating new relative > Attribute value error. Info discarded")
         return None
 
 
